@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 const scoreValue = document.getElementById("scoreValue");
 const livesValue = document.getElementById("livesValue");
 const levelValue = document.getElementById("levelValue");
+const highScoreValue = document.getElementById("highScoreValue");
 const statusValue = document.getElementById("statusValue");
 const restartButton = document.getElementById("restartButton");
 const overlay = document.getElementById("overlay");
@@ -62,6 +63,24 @@ let gameState;
 let animationFrameId = null;
 let lastTimestamp = 0;
 let audioContext = null;
+const HIGH_SCORE_KEY = "breakout-high-score";
+let highScore = readHighScore();
+
+function readHighScore() {
+  try {
+    return Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function writeHighScore(nextHighScore) {
+  try {
+    localStorage.setItem(HIGH_SCORE_KEY, String(nextHighScore));
+  } catch (error) {
+    // Ignore storage issues so gameplay continues.
+  }
+}
 
 function createBall(x, y, direction = 1, speed = config.ball.startSpeed) {
   return {
@@ -197,6 +216,7 @@ function updateHud() {
   scoreValue.textContent = gameState.score;
   livesValue.textContent = gameState.lives;
   levelValue.textContent = gameState.level;
+  highScoreValue.textContent = highScore;
 
   const statuses = [];
   if (Date.now() < gameState.timers.expandUntil) {
@@ -553,11 +573,15 @@ function loseLife() {
 
   if (gameState.lives <= 0) {
     gameState.isGameOver = true;
+    if (gameState.score > highScore) {
+      highScore = gameState.score;
+      writeHighScore(highScore);
+    }
     updateHud();
     showOverlay(
       "Game Over",
       "Out of Lives",
-      `Final score: ${gameState.score}. Catch more power-ups and try another run.`,
+      `Final score: ${gameState.score}. High score: ${highScore}. Catch more power-ups and try another run.`,
       "Play Again"
     );
     return;

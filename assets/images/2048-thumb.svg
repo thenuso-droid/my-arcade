@@ -1,0 +1,19 @@
+<svg width="640" height="400" viewBox="0 0 640 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="400" rx="28" fill="#1A1231"/>
+  <rect x="56" y="40" width="528" height="320" rx="28" fill="#24183F"/>
+  <rect x="116" y="84" width="92" height="92" rx="18" fill="#F2B179"/>
+  <rect x="224" y="84" width="92" height="92" rx="18" fill="#F59563"/>
+  <rect x="332" y="84" width="92" height="92" rx="18" fill="#F67C5F"/>
+  <rect x="440" y="84" width="92" height="92" rx="18" fill="#EDCF72"/>
+  <rect x="170" y="192" width="92" height="92" rx="18" fill="#EEE4DA"/>
+  <rect x="278" y="192" width="92" height="92" rx="18" fill="#EDE0C8"/>
+  <rect x="386" y="192" width="92" height="92" rx="18" fill="#EDC850"/>
+  <text x="145" y="142" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="34" font-weight="700">2</text>
+  <text x="249" y="142" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="34" font-weight="700">4</text>
+  <text x="349" y="142" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="34" font-weight="700">8</text>
+  <text x="456" y="142" fill="#6A4A18" font-family="Arial, sans-serif" font-size="30" font-weight="700">64</text>
+  <text x="190" y="250" fill="#6F665D" font-family="Arial, sans-serif" font-size="30" font-weight="700">2</text>
+  <text x="294" y="250" fill="#6F665D" font-family="Arial, sans-serif" font-size="30" font-weight="700">4</text>
+  <text x="402" y="250" fill="#FFF7ED" font-family="Arial, sans-serif" font-size="28" font-weight="700">256</text>
+  <text x="82" y="334" fill="#F8EEFF" font-family="Arial, sans-serif" font-size="34" font-weight="700">2048</text>
+</svg>

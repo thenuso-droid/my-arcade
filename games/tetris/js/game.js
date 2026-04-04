@@ -59,6 +59,7 @@ const nextCanvas = document.getElementById("nextCanvas");
 const scoreValue = document.getElementById("scoreValue");
 const levelValue = document.getElementById("levelValue");
 const linesValue = document.getElementById("linesValue");
+const highScoreValue = document.getElementById("highScoreValue");
 const restartButton = document.getElementById("restartButton");
 const overlayRestartButton = document.getElementById("overlayRestartButton");
 const gameOverlay = document.getElementById("gameOverlay");
@@ -68,6 +69,7 @@ const touchButtons = document.querySelectorAll("[data-action]");
 
 const context = gameCanvas.getContext("2d");
 const nextContext = nextCanvas.getContext("2d");
+const HIGH_SCORE_KEY = "tetris-high-score";
 
 context.scale(BLOCK_SIZE, BLOCK_SIZE);
 nextContext.scale(NEXT_BLOCK_SIZE, NEXT_BLOCK_SIZE);
@@ -83,6 +85,23 @@ let dropCounter = 0;
 let lastTime = 0;
 let animationFrameId = null;
 let gameOver = false;
+let highScore = readHighScore();
+
+function readHighScore() {
+  try {
+    return Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function writeHighScore(nextHighScore) {
+  try {
+    localStorage.setItem(HIGH_SCORE_KEY, String(nextHighScore));
+  } catch (error) {
+    // Ignore storage failures so the game still works.
+  }
+}
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -359,13 +378,19 @@ function updateStats() {
   scoreValue.textContent = String(score);
   levelValue.textContent = String(level);
   linesValue.textContent = String(lines);
+  highScoreValue.textContent = String(highScore);
 }
 
 function endGame() {
   gameOver = true;
+  if (score > highScore) {
+    highScore = score;
+    writeHighScore(highScore);
+  }
+  updateStats();
   gameOverlay.classList.remove("hidden");
   overlayTitle.textContent = "Game Over";
-  overlayMessage.textContent = `Final score: ${score}. Restart to try again.`;
+  overlayMessage.textContent = `Final score: ${score}. High score: ${highScore}. Restart to try again.`;
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);

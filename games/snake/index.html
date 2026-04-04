@@ -75,6 +75,27 @@
       flex-wrap: wrap;
     }
 
+    .score-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 0 0 18px;
+    }
+
+    .score-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-soft);
+      font-size: 0.95rem;
+    }
+
+    .score-pill strong {
+      color: var(--gold);
+    }
+
     .keys {
       display: flex;
       gap: 6px;
@@ -191,6 +212,10 @@
         <span class="key">←</span>
         <span class="key">→</span>
       </div>
+    </div>
+    <div class="score-row" aria-label="Score information">
+      <div class="score-pill">Current: <strong id="currentScoreValue">0</strong></div>
+      <div class="score-pill">High Score: <strong id="highScoreValue">0</strong></div>
     </div>
     <canvas id="game" width="400" height="400"></canvas>
     <div class="touch-controls" aria-label="Touch controls">

@@ -1,5 +1,14 @@
 const gameCards = document.querySelectorAll(".game-card");
 const musicToggle = document.getElementById("musicToggle");
+const highScoreElements = document.querySelectorAll("[data-high-score]");
+
+const HIGH_SCORE_KEYS = {
+  "2048": "2048-high-score",
+  tetris: "tetris-high-score",
+  "flappy-bird": "flappy-bird-best-score",
+  breakout: "breakout-high-score",
+  snake: "snake-high-score"
+};
 
 let audioContext = null;
 let musicNodes = null;
@@ -9,6 +18,18 @@ gameCards.forEach((card, index) => {
   window.setTimeout(() => {
     card.classList.add("visible");
   }, 140 * (index + 1));
+});
+
+highScoreElements.forEach((element) => {
+  const game = element.dataset.highScore;
+  const storageKey = HIGH_SCORE_KEYS[game];
+
+  try {
+    const savedScore = Number(localStorage.getItem(storageKey)) || 0;
+    element.textContent = String(savedScore);
+  } catch (error) {
+    element.textContent = "0";
+  }
 });
 
 function createMusicLoop() {

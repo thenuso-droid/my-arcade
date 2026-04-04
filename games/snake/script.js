@@ -1,11 +1,14 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const touchButtons = document.querySelectorAll(".touch-button");
+const currentScoreValue = document.getElementById("currentScoreValue");
+const highScoreValue = document.getElementById("highScoreValue");
 
 const tileSize = 20;
 const tileCount = canvas.width / tileSize;
 const gameSpeed = 140;
 const pointsPerSnitch = 10;
+const HIGH_SCORE_KEY = "snake-high-score";
 
 let snake = [
   { x: 10, y: 10 },
@@ -22,6 +25,28 @@ let touchStartX = 0;
 let touchStartY = 0;
 let messageTimer = 0;
 let audioContext;
+let highScore = readHighScore();
+
+function readHighScore() {
+  try {
+    return Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function writeHighScore(nextHighScore) {
+  try {
+    localStorage.setItem(HIGH_SCORE_KEY, String(nextHighScore));
+  } catch (error) {
+    // Ignore storage issues so gameplay still runs.
+  }
+}
+
+function updateScoreDisplay() {
+  currentScoreValue.textContent = String(score);
+  highScoreValue.textContent = String(highScore);
+}
 
 document.addEventListener("keydown", changeDirection);
 canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -33,6 +58,7 @@ touchButtons.forEach((button) => {
 });
 
 drawGame();
+updateScoreDisplay();
 const gameLoop = setInterval(updateGame, gameSpeed);
 
 function updateGame() {
@@ -54,6 +80,11 @@ function updateGame() {
 
   if (hitSelf(head)) {
     gameOver = true;
+    if (score > highScore) {
+      highScore = score;
+      writeHighScore(highScore);
+    }
+    updateScoreDisplay();
     drawGame();
     drawGameOver();
     return;
@@ -66,6 +97,7 @@ function updateGame() {
     goldenSnitch = spawnGoldenSnitch();
     messageTimer = 12;
     playSnitchSound();
+    updateScoreDisplay();
   } else {
     snake.pop();
   }
@@ -167,6 +199,13 @@ function drawGameOver() {
     "Final House Points: " + score,
     canvas.width / 2,
     canvas.height / 2 + 24
+  );
+
+  ctx.font = "16px Georgia";
+  ctx.fillText(
+    "High Score: " + highScore,
+    canvas.width / 2,
+    canvas.height / 2 + 52
   );
 }
 

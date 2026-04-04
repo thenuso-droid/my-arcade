@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>2048 | My Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <a class="arcade-back" href="../../index.html" aria-label="Back to Arcade">
+        &larr; Back to Arcade
+      </a>
+
+      <section class="game-shell">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Puzzle Game</p>
+            <h1>2048</h1>
+            <p class="hero-copy">Combine matching tiles, grow your score, and reach the 2048 tile.</p>
+          </div>
+          <button id="restartButton" class="button button-primary" type="button">Restart</button>
+        </header>
+
+        <section class="status-bar" aria-label="Game status">
+          <div class="stat-card">
+            <span class="stat-label">Score</span>
+            <strong id="scoreValue" class="stat-value">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">High Score</span>
+            <strong id="highScoreValue" class="stat-value">0</strong>
+          </div>
+        </section>
+
+        <section class="board-section">
+          <div id="board" class="board" aria-label="2048 board" role="application"></div>
+
+          <div id="overlay" class="overlay hidden" aria-live="polite">
+            <div class="overlay-card">
+              <p id="overlayTag" class="overlay-tag">Round Complete</p>
+              <h2 id="overlayTitle">Game Over</h2>
+              <p id="overlayMessage">Restart to try again.</p>
+              <div class="overlay-actions">
+                <button id="continueButton" class="button hidden" type="button">Keep Playing</button>
+                <button id="overlayRestartButton" class="button button-primary" type="button">Play Again</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-panel">
+          <p><span>Desktop:</span> Use the arrow keys to slide all tiles.</p>
+          <p><span>Mobile:</span> Swipe up, down, left, or right on the board.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

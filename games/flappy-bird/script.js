@@ -5,6 +5,7 @@ const scoreCard = document.getElementById("score-card");
 const scoreElement = document.getElementById("score");
 const bestScoreElement = document.getElementById("best-score");
 const finalScoreElement = document.getElementById("final-score");
+const finalBestScoreElement = document.getElementById("final-best-score");
 const startScreen = document.getElementById("start-screen");
 const gameOverScreen = document.getElementById("game-over-screen");
 const startButton = document.getElementById("start-button");
@@ -231,6 +232,7 @@ function hideStartScreen() {
 
 function showGameOverScreen() {
   finalScoreElement.textContent = state.score;
+  finalBestScoreElement.textContent = state.bestScore;
   gameOverScreen.classList.remove("hidden");
 }
 
