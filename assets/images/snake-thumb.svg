@@ -1,0 +1,11 @@
+<svg width="640" height="400" viewBox="0 0 640 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="400" rx="28" fill="#08100E"/>
+  <rect x="44" y="34" width="552" height="332" rx="24" fill="#0D1715"/>
+  <path d="M126 246C126 214 152 188 184 188H246C278 188 304 162 304 130C304 98 330 72 362 72H448C480 72 506 98 506 130C506 162 480 188 448 188H396C364 188 338 214 338 246C338 278 312 304 280 304H194C156.444 304 126 273.556 126 246Z" fill="#2E8B57"/>
+  <circle cx="488" cy="130" r="14" fill="#CDEFD5"/>
+  <circle cx="491" cy="128" r="5" fill="#10211B"/>
+  <circle cx="214" cy="126" r="18" fill="#D4AF37"/>
+  <path d="M196 126L206 118L206 134L196 126Z" stroke="#F4E6B2" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M232 126L222 118L222 134L232 126Z" stroke="#F4E6B2" stroke-width="4" stroke-linejoin="round"/>
+  <text x="72" y="346" fill="#E9D9A0" font-family="Arial, sans-serif" font-size="32" font-weight="700">HARRY POTTER SNAKE</text>
+</svg>

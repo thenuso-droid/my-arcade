@@ -1,0 +1,22 @@
+<svg width="640" height="400" viewBox="0 0 640 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="400" rx="28" fill="#0E1630"/>
+  <rect x="34" y="30" width="572" height="340" rx="24" fill="#111B3A"/>
+  <rect x="78" y="74" width="44" height="44" rx="10" fill="#4ED8F5"/>
+  <rect x="126" y="74" width="44" height="44" rx="10" fill="#4ED8F5"/>
+  <rect x="174" y="74" width="44" height="44" rx="10" fill="#4ED8F5"/>
+  <rect x="222" y="74" width="44" height="44" rx="10" fill="#4ED8F5"/>
+  <rect x="126" y="122" width="44" height="44" rx="10" fill="#FFD34F"/>
+  <rect x="174" y="122" width="44" height="44" rx="10" fill="#FFD34F"/>
+  <rect x="270" y="122" width="44" height="44" rx="10" fill="#FF6E8A"/>
+  <rect x="318" y="122" width="44" height="44" rx="10" fill="#FF6E8A"/>
+  <rect x="318" y="170" width="44" height="44" rx="10" fill="#FF6E8A"/>
+  <rect x="366" y="170" width="44" height="44" rx="10" fill="#86F6AE"/>
+  <rect x="414" y="170" width="44" height="44" rx="10" fill="#86F6AE"/>
+  <rect x="318" y="218" width="44" height="44" rx="10" fill="#B68CFF"/>
+  <rect x="366" y="218" width="44" height="44" rx="10" fill="#B68CFF"/>
+  <rect x="414" y="218" width="44" height="44" rx="10" fill="#B68CFF"/>
+  <rect x="462" y="218" width="44" height="44" rx="10" fill="#FFA960"/>
+  <rect x="462" y="266" width="44" height="44" rx="10" fill="#FFA960"/>
+  <rect x="510" y="266" width="44" height="44" rx="10" fill="#FFA960"/>
+  <text x="78" y="340" fill="#EAF2FF" font-family="Arial, sans-serif" font-size="34" font-weight="700">TETRIS</text>
+</svg>
