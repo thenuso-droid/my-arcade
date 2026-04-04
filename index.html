@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <p class="eyebrow">Browser Arcade</p>
+        <h1>My Arcade</h1>
+        <p class="hero-copy">
+          Pick a game and jump straight in. Each title runs from its own folder,
+          so the arcade homepage stays simple while every game remains
+          independent.
+        </p>
+      </header>
+
+      <main>
+        <section class="games-section" aria-labelledby="games-heading">
+          <div class="section-heading">
+            <h2 id="games-heading">Choose a Game</h2>
+            <p>Four playable browser games, one simple arcade homepage.</p>
+          </div>
+
+          <div class="game-grid">
+            <a class="game-card tetris-card" href="./games/tetris/">
+              <span class="game-tag">Puzzle</span>
+              <h3>Tetris</h3>
+              <p>Stack pieces, clear lines, and chase a higher score.</p>
+              <span class="game-link">Open Game</span>
+            </a>
+
+            <a class="game-card flappy-card" href="./games/flappy-bird/">
+              <span class="game-tag">Arcade</span>
+              <h3>Flappy Bird</h3>
+              <p>Tap, click, or press space to glide through the pipes.</p>
+              <span class="game-link">Open Game</span>
+            </a>
+
+            <a class="game-card breakout-card" href="./games/breakout/">
+              <span class="game-tag">Classic</span>
+              <h3>Breakout</h3>
+              <p>Bounce the ball, break the bricks, and collect power-ups.</p>
+              <span class="game-link">Open Game</span>
+            </a>
+
+            <a class="game-card snake-card" href="./games/snake/">
+              <span class="game-tag">Wizarding</span>
+              <h3>Harry Potter Snake</h3>
+              <p>Guide the snake and collect the Golden Snitch for house points.</p>
+              <span class="game-link">Open Game</span>
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

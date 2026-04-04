@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harry Potter Snake</title>
+  <style>
+    :root {
+      --bg-main: #05070d;
+      --bg-accent: #0d1324;
+      --gold: #d4af37;
+      --gold-soft: #f5deb3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 35%),
+        radial-gradient(circle at bottom, rgba(255, 215, 0, 0.08), transparent 30%),
+        linear-gradient(160deg, var(--bg-accent), var(--bg-main));
+      color: var(--gold);
+    }
+
+    .container {
+      text-align: center;
+      padding: 24px;
+      width: min(100%, 520px);
+    }
+
+    .arcade-back {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold);
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2.4rem;
+      color: var(--gold);
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+    }
+
+    p {
+      margin: 0 0 20px;
+      font-size: 1.1rem;
+      color: var(--gold-soft);
+    }
+
+    .instructions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 0 18px;
+      color: var(--gold-soft);
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+    }
+
+    .keys {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .key {
+      min-width: 34px;
+      padding: 6px 0;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 8px;
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold);
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: inset 0 -2px 0 rgba(212, 175, 55, 0.15);
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      width: min(400px, 92vw);
+      height: min(400px, 92vw);
+      border: 3px solid var(--gold);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.15)),
+        #0a0f1c;
+      box-shadow:
+        0 0 20px rgba(212, 175, 55, 0.2),
+        inset 0 0 18px rgba(212, 175, 55, 0.08);
+      touch-action: none;
+    }
+
+    .touch-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      gap: 8px;
+      justify-content: center;
+      margin: 18px auto 0;
+      width: fit-content;
+    }
+
+    .touch-button {
+      height: 56px;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 12px;
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--gold);
+      font-size: 1.4rem;
+      font-weight: bold;
+      box-shadow:
+        0 0 12px rgba(212, 175, 55, 0.12),
+        inset 0 -2px 0 rgba(212, 175, 55, 0.15);
+    }
+
+    .touch-button:active {
+      transform: scale(0.97);
+      background: rgba(212, 175, 55, 0.2);
+    }
+
+    .touch-button.up {
+      grid-column: 2;
+    }
+
+    .touch-button.left {
+      grid-column: 1;
+    }
+
+    .touch-button.down {
+      grid-column: 2;
+    }
+
+    .touch-button.right {
+      grid-column: 3;
+    }
+
+    @media (min-width: 768px) {
+      .touch-controls {
+        margin-top: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px 12px 24px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        margin-bottom: 16px;
+      }
+
+      .instructions {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="arcade-back" href="../../index.html" aria-label="Back to Arcade">
+      &larr; Back to Arcade
+    </a>
+    <h1>Harry Potter Snake</h1>
+    <p>Collect the Golden Snitch</p>
+    <div class="instructions">
+      <span>Use the arrow keys to move</span>
+      <div class="keys" aria-label="Arrow keys">
+        <span class="key">↑</span>
+        <span class="key">↓</span>
+        <span class="key">←</span>
+        <span class="key">→</span>
+      </div>
+    </div>
+    <canvas id="game" width="400" height="400"></canvas>
+    <div class="touch-controls" aria-label="Touch controls">
+      <button class="touch-button up" type="button" data-direction="up">↑</button>
+      <button class="touch-button left" type="button" data-direction="left">←</button>
+      <button class="touch-button down" type="button" data-direction="down">↓</button>
+      <button class="touch-button right" type="button" data-direction="right">→</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

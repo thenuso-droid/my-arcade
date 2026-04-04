@@ -1,0 +1,513 @@
+:root {
+  --bg-top: #59c7ff;
+  --bg-mid: #8be0ff;
+  --bg-bottom: #f5fcff;
+  --panel: rgba(10, 26, 43, 0.74);
+  --panel-border: rgba(255, 255, 255, 0.2);
+  --text-main: #f8fbff;
+  --text-soft: rgba(248, 251, 255, 0.8);
+  --accent: #ffb400;
+  --accent-strong: #ffd54f;
+  --pipe-top: #49d17d;
+  --pipe-bottom: #1e9255;
+  --ground-top: #efcf7e;
+  --ground-bottom: #b87938;
+  --shadow: 0 18px 40px rgba(6, 25, 41, 0.24);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Manrope", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.95), transparent 30%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-mid) 48%, var(--bg-bottom));
+  color: var(--text-main);
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.game-shell {
+  width: min(100%, 920px);
+}
+
+.arcade-back {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(10, 26, 43, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-main);
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.arcade-back:hover,
+.arcade-back:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 36px rgba(6, 25, 41, 0.28);
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.score-card {
+  min-width: 120px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.score-card-primary {
+  min-width: 150px;
+  background: linear-gradient(135deg, rgba(10, 26, 43, 0.9), rgba(22, 58, 90, 0.78));
+  border-color: rgba(255, 218, 102, 0.28);
+}
+
+.score-card-pop {
+  transform: scale(1.08);
+  box-shadow: 0 18px 34px rgba(255, 183, 46, 0.28);
+}
+
+.label {
+  display: block;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.value {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.score-card-primary .value {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1;
+}
+
+.game-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.45), transparent 20%),
+    radial-gradient(circle at 82% 18%, rgba(255, 237, 130, 0.4), transparent 14%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 46%),
+    linear-gradient(180deg, #34bcff, #9beaff 70%, #dbf7ff);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  touch-action: manipulation;
+  transition: transform 0.22s ease, filter 0.35s ease;
+}
+
+.game-area:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 4px;
+}
+
+.sky-glow {
+  position: absolute;
+  inset: auto auto 28% -12%;
+  width: 48%;
+  height: 42%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  filter: blur(20px);
+}
+
+.game-area.pre-game .bird,
+.game-area.pre-game .pipe-layer,
+.game-area.pre-game .ground {
+  opacity: 0;
+}
+
+.game-area.pre-game .bird,
+.game-area.pre-game .ground {
+  transform: translateY(12px);
+}
+
+.bird,
+.pipe-layer,
+.ground {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.bird {
+  --bird-size: clamp(42px, 5.8vw, 58px);
+  position: absolute;
+  left: 20%;
+  top: 50%;
+  width: var(--bird-size);
+  height: var(--bird-size);
+  transform-origin: center;
+  z-index: 3;
+  will-change: transform, top;
+}
+
+.bird-body {
+  position: absolute;
+  inset: 4px;
+  border-radius: 54% 46% 48% 52%;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 248, 194, 0.95), transparent 22%),
+    linear-gradient(135deg, #ffe86f 0%, #ffbe1a 58%, #ff9b00 100%);
+  border: 2px solid rgba(118, 73, 4, 0.18);
+  box-shadow:
+    0 10px 18px rgba(145, 87, 7, 0.28),
+    inset -6px -8px 14px rgba(222, 121, 0, 0.16);
+}
+
+.bird-body::before {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  filter: blur(1px);
+}
+
+.bird-body::after {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 14px;
+  width: 12px;
+  height: 18px;
+  border-radius: 12px 6px 6px 12px;
+  background: linear-gradient(135deg, #ff8d72, #ff5c4d);
+  transform: rotate(-18deg);
+}
+
+.bird-belly {
+  position: absolute;
+  left: 15px;
+  top: 14px;
+  width: 24px;
+  height: 22px;
+  border-radius: 52% 48% 56% 44%;
+  background: linear-gradient(180deg, #fff7d6, #ffe89f);
+}
+
+.bird-eye {
+  position: absolute;
+  right: 11px;
+  top: 12px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.bird-pupil {
+  position: absolute;
+  right: 14px;
+  top: 15px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16212a;
+}
+
+.bird-cheek {
+  position: absolute;
+  right: 8px;
+  top: 24px;
+  width: 10px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 138, 92, 0.55);
+}
+
+.bird-beak {
+  position: absolute;
+  right: -8px;
+  top: 18px;
+  width: 18px;
+  height: 12px;
+  background: linear-gradient(135deg, #ff9e45, #ff6f2e);
+  clip-path: polygon(0 50%, 100% 10%, 100% 90%);
+}
+
+.bird-wing {
+  position: absolute;
+  left: 9px;
+  top: 18px;
+  width: 24px;
+  height: 18px;
+  border-radius: 55% 45% 55% 45%;
+  background: linear-gradient(135deg, #ffd24a, #f39b08);
+  transform-origin: 85% 50%;
+  animation: wing-flap 0.95s ease-in-out infinite;
+  box-shadow: inset -2px -3px 6px rgba(169, 94, 2, 0.16);
+}
+
+.bird.flap-boost .bird-wing {
+  animation-duration: 0.26s;
+}
+
+.game-area.shake {
+  animation: screen-shake 0.34s ease;
+}
+
+.pipe-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.pipe {
+  position: absolute;
+  width: 72px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, var(--pipe-bottom), var(--pipe-top));
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 2px rgba(18, 75, 48, 0.12),
+    0 8px 14px rgba(19, 101, 58, 0.14);
+}
+
+.pipe::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  width: calc(100% + 12px);
+  height: 18px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #2a915c, #59d290);
+}
+
+.pipe-top::before {
+  bottom: 0;
+}
+
+.pipe-bottom::before {
+  top: 0;
+}
+
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 92px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 20%),
+    linear-gradient(180deg, var(--ground-top), var(--ground-bottom));
+  z-index: 2;
+}
+
+.ground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.16) 0 12%,
+      transparent 12% 24%,
+      rgba(255, 255, 255, 0.1) 24% 36%,
+      transparent 36% 48%,
+      rgba(255, 255, 255, 0.12) 48% 60%,
+      transparent 60% 72%,
+      rgba(255, 255, 255, 0.08) 72% 84%,
+      transparent 84% 100%
+    );
+  opacity: 0.55;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 4;
+  background: rgba(7, 17, 28, 0.2);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.28s ease, visibility 0.28s ease, backdrop-filter 0.28s ease;
+  backdrop-filter: blur(3px);
+}
+
+.overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.panel {
+  width: min(100%, 360px);
+  padding: 28px 24px;
+  border-radius: 24px;
+  background: rgba(7, 18, 31, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: var(--shadow);
+  text-align: center;
+  backdrop-filter: blur(16px);
+  transform: translateY(0);
+  transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+.overlay.hidden .panel {
+  transform: translateY(14px) scale(0.98);
+  opacity: 0;
+}
+
+.panel h1,
+.panel h2,
+.panel p {
+  margin: 0;
+}
+
+.panel h1,
+.panel h2 {
+  margin-top: 10px;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+}
+
+.panel p {
+  margin-top: 12px;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.eyebrow {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.primary-button {
+  margin-top: 20px;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 18px;
+  font-weight: 800;
+  color: #18222c;
+  background: linear-gradient(135deg, #ffe27a, #ffb84f);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 12px 24px rgba(255, 184, 79, 0.28);
+}
+
+.primary-button:hover,
+.primary-button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(255, 184, 79, 0.34);
+}
+
+.help-text {
+  margin: 14px 0 0;
+  text-align: center;
+  color: #26445c;
+  font-weight: 600;
+}
+
+@keyframes wing-flap {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(18deg) translateY(-2px);
+  }
+}
+
+@keyframes screen-shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-6px);
+  }
+
+  50% {
+    transform: translateX(6px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 700px) {
+  .app {
+    padding: 12px;
+  }
+
+  .game-area {
+    min-height: 70vh;
+    aspect-ratio: 9 / 16;
+    border-radius: 24px;
+  }
+
+  .hud {
+    margin-bottom: 10px;
+  }
+
+  .score-card {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .ground {
+    height: 84px;
+  }
+
+  .panel {
+    padding: 24px 20px;
+  }
+
+  .bird {
+    --bird-size: clamp(40px, 12vw, 54px);
+  }
+}

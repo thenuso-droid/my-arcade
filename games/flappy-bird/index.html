@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flappy Bird</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="game-shell">
+        <a class="arcade-back" href="../../index.html" aria-label="Back to Arcade">
+          &larr; Back to Arcade
+        </a>
+        <div class="hud">
+          <div id="score-card" class="score-card score-card-primary">
+            <span class="label">Score</span>
+            <span id="score" class="value">0</span>
+          </div>
+          <div class="score-card">
+            <span class="label">Best</span>
+            <span id="best-score" class="value">0</span>
+          </div>
+        </div>
+
+        <div
+          id="game-area"
+          class="game-area pre-game"
+          role="button"
+          aria-label="Flappy Bird style game area. Tap, click, or press space to jump."
+          tabindex="0"
+        >
+          <div class="sky-glow"></div>
+          <div id="bird" class="bird" aria-hidden="true">
+            <div class="bird-body">
+              <div class="bird-belly"></div>
+              <div class="bird-eye"></div>
+              <div class="bird-pupil"></div>
+              <div class="bird-cheek"></div>
+              <div class="bird-beak"></div>
+              <div class="bird-wing"></div>
+            </div>
+          </div>
+          <div id="pipe-layer" class="pipe-layer" aria-hidden="true"></div>
+          <div class="ground" aria-hidden="true"></div>
+
+          <div id="start-screen" class="overlay visible">
+            <div class="panel">
+              <p class="eyebrow">Ready To Fly</p>
+              <h1>Flappy Bird</h1>
+              <p><strong>Tap / Press Space to Start</strong></p>
+              <p>Fly through the pipe gaps and keep your score climbing.</p>
+              <button id="start-button" class="primary-button">Start Game</button>
+            </div>
+          </div>
+
+          <div id="game-over-screen" class="overlay hidden">
+            <div class="panel">
+              <p class="eyebrow">Game Over</p>
+              <h2>Your run ended</h2>
+              <p>
+                Final score:
+                <strong id="final-score">0</strong>
+              </p>
+              <button id="restart-button" class="primary-button">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="help-text">
+          Controls: tap, click, or press <strong>space</strong> to jump.
+        </p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Block Fall</title>
+  <meta name="description" content="A browser-based Tetris-style game built with plain HTML, CSS, and JavaScript.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <a class="arcade-back" href="../../index.html" aria-label="Back to Arcade">
+      &larr; Back to Arcade
+    </a>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Browser Game</p>
+        <h1>Block Fall</h1>
+        <p class="hero-copy">A clean, modern Tetris-style puzzle game that works on laptops and phones.</p>
+      </div>
+      <button id="restartButton" class="button button-primary" type="button">Restart Game</button>
+    </header>
+
+    <main class="game-layout">
+      <section class="board-panel">
+        <div class="board-frame">
+          <canvas id="gameCanvas" width="300" height="600" aria-label="Game board"></canvas>
+          <div id="gameOverlay" class="game-overlay hidden" aria-live="polite">
+            <div class="overlay-card">
+              <p class="overlay-label">Round Ended</p>
+              <h2 id="overlayTitle">Game Over</h2>
+              <p id="overlayMessage">Tap restart to play again.</p>
+              <button id="overlayRestartButton" class="button button-primary" type="button">Play Again</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="panel stats-panel">
+          <div class="stat-card">
+            <span class="stat-label">Score</span>
+            <strong id="scoreValue" class="stat-value">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Level</span>
+            <strong id="levelValue" class="stat-value">1</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Lines</span>
+            <strong id="linesValue" class="stat-value">0</strong>
+          </div>
+        </section>
+
+        <section class="panel next-panel">
+          <div class="panel-heading">
+            <h2>Next Piece</h2>
+          </div>
+          <canvas id="nextCanvas" width="160" height="160" aria-label="Next piece preview"></canvas>
+        </section>
+
+        <section class="panel controls-panel">
+          <div class="panel-heading">
+            <h2>How to Play</h2>
+          </div>
+          <div class="control-list">
+            <p><span>Move</span><strong>Left / Right</strong></p>
+            <p><span>Rotate</span><strong>Up or X</strong></p>
+            <p><span>Soft Drop</span><strong>Down</strong></p>
+            <p><span>Hard Drop</span><strong>Space</strong></p>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="touch-panel" aria-label="Touch controls">
+      <div class="touch-grid">
+        <button class="button touch-button" type="button" data-action="rotate">Rotate</button>
+        <button class="button touch-button" type="button" data-action="left">Left</button>
+        <button class="button touch-button" type="button" data-action="down">Down</button>
+        <button class="button touch-button" type="button" data-action="right">Right</button>
+        <button class="button button-primary touch-button touch-wide" type="button" data-action="drop">Drop</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/game.js"></script>
+</body>
+</html>
