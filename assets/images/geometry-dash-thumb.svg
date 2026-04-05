@@ -1,0 +1,15 @@
+<svg width="640" height="400" viewBox="0 0 640 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="400" rx="28" fill="#091121"/>
+  <rect y="286" width="640" height="114" fill="#111E3A"/>
+  <path d="M0 286H640" stroke="#31E9FF" stroke-width="4"/>
+  <rect x="108" y="236" width="50" height="50" rx="10" fill="#FFE44D"/>
+  <rect x="122" y="250" width="10" height="10" rx="2" fill="#12213B"/>
+  <rect x="134" y="250" width="10" height="10" rx="2" fill="#12213B"/>
+  <path d="M204 286L228 236L252 286H204Z" fill="#FF4D9A"/>
+  <path d="M282 286L306 236L330 286H282Z" fill="#FF4D9A"/>
+  <path d="M360 286L384 236L408 286H360Z" fill="#FF4D9A"/>
+  <rect x="454" y="204" width="22" height="82" rx="8" fill="#31E9FF"/>
+  <rect x="492" y="172" width="22" height="114" rx="8" fill="#31E9FF"/>
+  <circle cx="520" cy="106" r="38" fill="#6D5CFF" fill-opacity="0.28"/>
+  <text x="64" y="88" fill="#EAF2FF" font-family="Arial, sans-serif" font-size="34" font-weight="700">GEOMETRY DASH</text>
+</svg>

@@ -63,6 +63,7 @@ let gameState;
 let animationFrameId = null;
 let lastTimestamp = 0;
 let audioContext = null;
+let resumeTimeoutId = null;
 const HIGH_SCORE_KEY = "breakout-high-score";
 let highScore = readHighScore();
 
@@ -190,6 +191,11 @@ function resetBallAndPaddle() {
 }
 
 function restartGame() {
+  if (resumeTimeoutId) {
+    window.clearTimeout(resumeTimeoutId);
+    resumeTimeoutId = null;
+  }
+
   gameState = createInitialState();
   lastTimestamp = 0;
   canvasWrap.classList.remove("shake");
@@ -204,12 +210,38 @@ function restartGame() {
 }
 
 function startGame() {
-  if (!gameState.isGameOver) {
-    gameState.running = true;
-    gameState.hasStarted = true;
-    hideOverlay();
-    resumeAudio();
+  if (gameState.isGameOver || gameState.running) {
+    return;
   }
+
+  if (resumeTimeoutId) {
+    window.clearTimeout(resumeTimeoutId);
+    resumeTimeoutId = null;
+  }
+
+  gameState.running = true;
+  gameState.hasStarted = true;
+  lastTimestamp = 0;
+  hideOverlay();
+  resumeAudio();
+}
+
+function pauseRound(tag, title, message, buttonLabel = "Continue", delay = 900) {
+  gameState.running = false;
+  lastTimestamp = 0;
+  showOverlay(tag, title, message, buttonLabel);
+
+  if (resumeTimeoutId) {
+    window.clearTimeout(resumeTimeoutId);
+  }
+
+  resumeTimeoutId = window.setTimeout(() => {
+    resumeTimeoutId = null;
+
+    if (!gameState.isGameOver) {
+      startGame();
+    }
+  }, delay);
 }
 
 function updateHud() {
@@ -546,14 +578,14 @@ function handleBrickCollisions(ball) {
     if (gameState.bricks.every((item) => item.strength <= 0)) {
       gameState.level += 1;
       gameState.bricks = buildBricks(gameState.level);
-      gameState.running = false;
       resetBallAndPaddle();
       updateHud();
-      showOverlay(
+      pauseRound(
         "Level Clear",
         `Level ${gameState.level}`,
         "The pace is picking up. Tap or press Play to jump into the next round.",
-        "Next Level"
+        "Next Level",
+        1000
       );
     } else {
       updateHud();
@@ -568,6 +600,7 @@ function handleBrickCollisions(ball) {
 function loseLife() {
   gameState.lives -= 1;
   gameState.running = false;
+  lastTimestamp = 0;
   triggerShake();
   playSound("lose");
 
@@ -589,11 +622,12 @@ function loseLife() {
 
   resetBallAndPaddle();
   updateHud();
-  showOverlay(
+  pauseRound(
     "Life Lost",
     "Take Another Shot",
     `You have ${gameState.lives} ${gameState.lives === 1 ? "life" : "lives"} left. Tap or press Play when you're ready.`,
-    "Continue"
+    "Continue",
+    900
   );
 }
 

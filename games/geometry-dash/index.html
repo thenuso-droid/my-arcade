@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Neon Cube | My Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <a class="arcade-back" href="../../index.html" aria-label="Back to Arcade">
+        &larr; Back to Arcade
+      </a>
+
+      <section class="game-shell">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Arcade Runner</p>
+            <h1>Neon Cube</h1>
+            <p class="hero-copy">Jump over spikes, build distance, and survive the neon course.</p>
+          </div>
+          <button id="restartButton" class="button button-primary" type="button">Restart</button>
+        </header>
+
+        <section class="status-bar" aria-label="Game status">
+          <div class="stat-card">
+            <span class="stat-label">Score</span>
+            <strong id="scoreValue" class="stat-value">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">High Score</span>
+            <strong id="highScoreValue" class="stat-value">0</strong>
+          </div>
+        </section>
+
+        <section class="game-stage">
+          <canvas id="gameCanvas" width="960" height="420" aria-label="Neon Cube game area"></canvas>
+
+          <div id="overlay" class="overlay">
+            <div class="overlay-card">
+              <p id="overlayTag" class="overlay-tag">Tap To Start</p>
+              <h2 id="overlayTitle">Neon Cube</h2>
+              <p id="overlayMessage" class="overlay-message">
+                Tap, click, or press space to jump over the obstacles.
+              </p>
+              <button id="overlayButton" class="button button-primary" type="button">Start Game</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-panel">
+          <p><span>Desktop:</span> Press space or click to jump.</p>
+          <p><span>Mobile:</span> Tap anywhere on the game area to jump.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

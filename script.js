@@ -4,6 +4,7 @@ const highScoreElements = document.querySelectorAll("[data-high-score]");
 
 const HIGH_SCORE_KEYS = {
   "2048": "2048-high-score",
+  "geometry-dash": "geometry-dash-high-score",
   tetris: "tetris-high-score",
   "flappy-bird": "flappy-bird-best-score",
   breakout: "breakout-high-score",
