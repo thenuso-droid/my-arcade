@@ -3,7 +3,11 @@ const ctx = canvas.getContext("2d");
 
 const scoreValue = document.getElementById("scoreValue");
 const highScoreValue = document.getElementById("highScoreValue");
+const levelValue = document.getElementById("levelValue");
+const progressValue = document.getElementById("progressValue");
+const progressBar = document.getElementById("progressBar");
 const restartButton = document.getElementById("restartButton");
+const muteButton = document.getElementById("muteButton");
 const overlay = document.getElementById("overlay");
 const overlayTag = document.getElementById("overlayTag");
 const overlayTitle = document.getElementById("overlayTitle");
@@ -11,63 +15,230 @@ const overlayMessage = document.getElementById("overlayMessage");
 const overlayButton = document.getElementById("overlayButton");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
+const BEST_LEVEL_KEY = "geometry-dash-best-level";
+
+const levels = [
+  {
+    name: "Level 1",
+    speed: 5.9,
+    speedRamp: 0.00018,
+    beatMs: 520,
+    lengthBeats: 36,
+    backgroundTop: "#0c1e37",
+    backgroundBottom: "#09101d",
+    ground: "#132243",
+    accent: "#31e9ff",
+    accentSoft: "rgba(49, 233, 255, 0.14)",
+    patterns: [
+      [{ type: "spike", width: 34, height: 40, beatsAfter: 2 }],
+      [
+        { type: "spike", width: 30, height: 36, beatsAfter: 1 },
+        { type: "spike", width: 30, height: 48, beatsAfter: 2 }
+      ],
+      [{ type: "block", width: 42, height: 40, beatsAfter: 2 }]
+    ],
+    melody: [392, 523.25, 587.33, 523.25]
+  },
+  {
+    name: "Level 2",
+    speed: 6.8,
+    speedRamp: 0.00025,
+    beatMs: 470,
+    lengthBeats: 40,
+    backgroundTop: "#191238",
+    backgroundBottom: "#0a0d1b",
+    ground: "#25184b",
+    accent: "#ff4d9a",
+    accentSoft: "rgba(255, 77, 154, 0.16)",
+    patterns: [
+      [
+        { type: "spike", width: 30, height: 38, beatsAfter: 1 },
+        { type: "spike", width: 30, height: 50, beatsAfter: 2 }
+      ],
+      [
+        { type: "block", width: 42, height: 38, beatsAfter: 1 },
+        { type: "spike", width: 34, height: 54, beatsAfter: 2 }
+      ],
+      [
+        { type: "spike", width: 30, height: 40, beatsAfter: 1 },
+        { type: "spike", width: 30, height: 50, beatsAfter: 1 },
+        { type: "spike", width: 30, height: 60, beatsAfter: 2 }
+      ]
+    ],
+    melody: [440, 659.25, 587.33, 698.46]
+  },
+  {
+    name: "Level 3",
+    speed: 7.6,
+    speedRamp: 0.00032,
+    beatMs: 430,
+    lengthBeats: 44,
+    backgroundTop: "#122d28",
+    backgroundBottom: "#08110f",
+    ground: "#183932",
+    accent: "#ffe44d",
+    accentSoft: "rgba(255, 228, 77, 0.16)",
+    patterns: [
+      [
+        { type: "spike", width: 28, height: 42, beatsAfter: 1 },
+        { type: "spike", width: 28, height: 54, beatsAfter: 1 },
+        { type: "spike", width: 28, height: 66, beatsAfter: 2 }
+      ],
+      [
+        { type: "block", width: 40, height: 36, beatsAfter: 1 },
+        { type: "block", width: 40, height: 48, beatsAfter: 1 },
+        { type: "spike", width: 32, height: 62, beatsAfter: 2 }
+      ],
+      [
+        { type: "spike", width: 30, height: 48, beatsAfter: 1 },
+        { type: "block", width: 40, height: 40, beatsAfter: 1 },
+        { type: "spike", width: 30, height: 64, beatsAfter: 2 }
+      ]
+    ],
+    melody: [523.25, 659.25, 783.99, 698.46]
+  }
+];
+
 const config = {
-  gravity: 0.85,
-  jumpForce: -13.8,
+  gravity: 1.08,
+  fallGravity: 1.42,
+  jumpForce: -15.6,
   groundHeight: 72,
-  obstacleWidth: 36,
-  obstacleMinHeight: 32,
-  obstacleMaxHeight: 86,
-  obstacleGap: 265,
-  initialSpeed: 5.3,
-  speedRamp: 0.0009
+  pulseSpeed: 0.055,
+  shakeDecay: 0.84,
+  spawnLead: 420
 };
 
 let animationFrameId = null;
-let highScore = readHighScore();
+let audioContext = null;
+let isMuted = false;
+let highScore = readScore(HIGH_SCORE_KEY);
+let bestLevelReached = readScore(BEST_LEVEL_KEY) || 1;
 
 const state = {
   running: false,
   gameOver: false,
   score: 0,
-  distance: 0,
-  speed: config.initialSpeed,
+  totalDistance: 0,
+  levelDistance: 0,
+  levelStartScore: 0,
+  speed: levels[0].speed,
   lastTimestamp: 0,
-  obstacleTimer: 0,
+  nextSpawnBeat: 2,
+  beatClock: 0,
+  beatIndex: 0,
+  pulse: 0,
+  flashAlpha: 0,
+  shake: 0,
+  playerTrail: 0,
+  currentLevelIndex: 0,
   player: {
-    x: 140,
+    x: 148,
     y: 0,
     size: 38,
     velocityY: 0,
     rotation: 0,
     grounded: true
   },
-  obstacles: []
+  obstacles: [],
+  particles: []
 };
 
-function readHighScore() {
+function currentLevel() {
+  return levels[state.currentLevelIndex];
+}
+
+function readScore(key) {
   try {
-    return Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+    return Number(localStorage.getItem(key)) || 0;
   } catch (error) {
     return 0;
   }
 }
 
-function writeHighScore(nextHighScore) {
+function writeScore(key, value) {
   try {
-    localStorage.setItem(HIGH_SCORE_KEY, String(nextHighScore));
+    localStorage.setItem(key, String(value));
   } catch (error) {
     // Ignore storage issues so gameplay still works.
   }
+}
+
+function ensureAudio() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+  if (!AudioContextClass) {
+    return null;
+  }
+
+  if (!audioContext) {
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+
+  return audioContext;
+}
+
+function updateMuteButton() {
+  muteButton.textContent = isMuted ? "Music: Off" : "Music: On";
+  muteButton.classList.toggle("is-muted", isMuted);
+}
+
+function playTone(frequency, duration, volume, type = "triangle") {
+  const context = ensureAudio();
+
+  if (!context || isMuted) {
+    return;
+  }
+
+  const now = context.currentTime;
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+  gainNode.gain.setValueAtTime(0.0001, now);
+  gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.02);
+}
+
+function playBeat() {
+  const level = currentLevel();
+  const note = level.melody[state.beatIndex % level.melody.length];
+  const kick = state.beatIndex % 4 === 0 ? note / 2 : note * 0.75;
+
+  playTone(kick, 0.12, 0.05, "sine");
+  playTone(note, 0.16, 0.028, state.beatIndex % 2 === 0 ? "triangle" : "square");
 }
 
 function getGroundY() {
   return canvas.height - config.groundHeight;
 }
 
+function getPixelsPerBeat() {
+  return currentLevel().speed * (currentLevel().beatMs / (1000 / 60));
+}
+
+function getLevelDistanceTarget() {
+  return currentLevel().lengthBeats * getPixelsPerBeat();
+}
+
 function updateStats() {
+  const progress = Math.min(100, Math.floor((state.levelDistance / getLevelDistanceTarget()) * 100));
+
   scoreValue.textContent = String(state.score);
   highScoreValue.textContent = String(highScore);
+  levelValue.textContent = String(state.currentLevelIndex + 1);
+  progressValue.textContent = `${progress}%`;
+  progressBar.style.width = `${progress}%`;
 }
 
 function showOverlay(tag, title, message, buttonLabel) {
@@ -82,39 +253,100 @@ function hideOverlay() {
   overlay.classList.add("hidden");
 }
 
-function createObstacle() {
-  const heightRange = config.obstacleMaxHeight - config.obstacleMinHeight;
-  const height = config.obstacleMinHeight + Math.random() * heightRange;
-
-  state.obstacles.push({
-    x: canvas.width + config.obstacleWidth,
-    width: config.obstacleWidth,
-    height,
-    passed: false
-  });
-}
-
-function resetGame() {
-  state.running = false;
-  state.gameOver = false;
-  state.score = 0;
-  state.distance = 0;
-  state.speed = config.initialSpeed;
-  state.lastTimestamp = 0;
-  state.obstacleTimer = 0;
-  state.obstacles = [];
+function resetPlayer() {
   state.player.y = getGroundY() - state.player.size;
   state.player.velocityY = 0;
   state.player.rotation = 0;
   state.player.grounded = true;
+}
+
+function spawnJumpParticles() {
+  for (let index = 0; index < 6; index += 1) {
+    state.particles.push({
+      x: state.totalDistance + state.player.x + 8 + Math.random() * 18,
+      y: getGroundY() - 8,
+      vx: -2.6 - Math.random() * 1.8,
+      vy: -0.8 - Math.random() * 1.8,
+      size: 4 + Math.random() * 3,
+      life: 18 + Math.random() * 8,
+      color: index % 2 === 0 ? currentLevel().accent : "#ffffff"
+    });
+  }
+}
+
+function spawnCollisionParticles() {
+  const centerX = state.totalDistance + state.player.x + state.player.size / 2;
+  const centerY = state.player.y + state.player.size / 2;
+
+  for (let index = 0; index < 18; index += 1) {
+    state.particles.push({
+      x: centerX,
+      y: centerY,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.6) * 7,
+      size: 4 + Math.random() * 5,
+      life: 18 + Math.random() * 14,
+      color: index % 2 === 0 ? "#ff4d9a" : currentLevel().accent
+    });
+  }
+}
+
+function applyLevelTheme() {
+  const level = currentLevel();
+  document.documentElement.style.setProperty("--bg-top", level.backgroundTop);
+  document.documentElement.style.setProperty("--bg-bottom", level.backgroundBottom);
+  document.documentElement.style.setProperty("--cyan", level.accent);
+  document.documentElement.style.setProperty("--progress", level.accent);
+}
+
+function loadLevel(levelIndex, showOverlayPanel = true) {
+  state.currentLevelIndex = levelIndex;
+  state.running = false;
+  state.gameOver = false;
+  state.speed = currentLevel().speed;
+  state.levelDistance = 0;
+  state.levelStartScore = state.score;
+  state.lastTimestamp = 0;
+  state.nextSpawnBeat = 2;
+  state.beatClock = 0;
+  state.beatIndex = 0;
+  state.flashAlpha = 0;
+  state.shake = 0;
+  state.playerTrail = 0;
+  state.obstacles = [];
+  state.particles = [];
+  state.pulse = 0;
+  resetPlayer();
+  applyLevelTheme();
   updateStats();
   draw();
-  showOverlay(
-    "Tap To Start",
-    "Neon Cube",
-    "Tap, click, or press space to jump over the obstacles.",
-    "Start Game"
-  );
+
+  if (showOverlayPanel) {
+    showOverlay(
+      levelIndex === 0 ? "Tap To Start" : "Level Complete",
+      currentLevel().name,
+      levelIndex === 0
+        ? "Tap, click, or press space to jump with the beat."
+        : `Tap to begin ${currentLevel().name}.`,
+      levelIndex === 0 ? "Start" : "Continue"
+    );
+  } else {
+    hideOverlay();
+  }
+}
+
+function resetRun() {
+  state.score = 0;
+  state.totalDistance = 0;
+  loadLevel(0, true);
+}
+
+function restartCurrentLevelAndJump() {
+  state.score = state.levelStartScore;
+  state.totalDistance = state.levelStartScore * 12;
+  loadLevel(state.currentLevelIndex, false);
+  startGame();
+  triggerJump();
 }
 
 function startGame() {
@@ -122,51 +354,120 @@ function startGame() {
     return;
   }
 
-  if (state.gameOver) {
-    resetGame();
-  }
-
+  ensureAudio();
   state.running = true;
+  state.gameOver = false;
   state.lastTimestamp = 0;
   hideOverlay();
 }
 
-function jump() {
-  if (!state.running) {
-    startGame();
-    return;
-  }
-
-  if (!state.player.grounded || state.gameOver) {
-    return;
-  }
-
+function triggerJump() {
   state.player.velocityY = config.jumpForce;
   state.player.grounded = false;
+  state.player.rotation = -0.28;
+  state.playerTrail = 1;
+  spawnJumpParticles();
+}
+
+function handleJumpInput() {
+  if (state.gameOver) {
+    restartCurrentLevelAndJump();
+    return;
+  }
+
+  if (!state.running) {
+    startGame();
+    triggerJump();
+    return;
+  }
+
+  if (!state.player.grounded) {
+    return;
+  }
+
+  triggerJump();
+}
+
+function completeLevel() {
+  const nextIndex = state.currentLevelIndex + 1;
+  const finalScore = state.score;
+  state.running = false;
+
+  if (state.score > highScore) {
+    highScore = state.score;
+    writeScore(HIGH_SCORE_KEY, highScore);
+  }
+
+  if (nextIndex >= levels.length) {
+    state.score = 0;
+    state.totalDistance = 0;
+    loadLevel(0, false);
+    updateStats();
+    showOverlay(
+      "Run Complete",
+      "All Levels Clear",
+      `Final score: ${finalScore}. Tap to start again from Level 1.`,
+      "Play Again"
+    );
+    return;
+  }
+
+  bestLevelReached = Math.max(bestLevelReached, nextIndex + 1);
+  writeScore(BEST_LEVEL_KEY, bestLevelReached);
+  loadLevel(nextIndex, true);
 }
 
 function endGame() {
   state.running = false;
   state.gameOver = true;
+  state.flashAlpha = 0.55;
+  state.shake = 16;
+  spawnCollisionParticles();
 
   if (state.score > highScore) {
     highScore = state.score;
-    writeHighScore(highScore);
+    writeScore(HIGH_SCORE_KEY, highScore);
   }
 
   updateStats();
   showOverlay(
     "Game Over",
-    "Run Ended",
-    `Score: ${state.score}. High score: ${highScore}. Restart and try again.`,
-    "Play Again"
+    "Tap To Retry",
+    `Restarting from ${currentLevel().name}. Score: ${state.score}. High score: ${highScore}.`,
+    "Retry"
   );
 }
 
+function queuePatternIfNeeded() {
+  const cameraAnchor = state.totalDistance + state.player.x - 120;
+  const pixelsPerBeat = getPixelsPerBeat();
+
+  while (state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
+    const patterns = currentLevel().patterns;
+    const pattern = patterns[state.beatIndex % patterns.length];
+    let cursorBeat = state.nextSpawnBeat;
+
+    pattern.forEach((piece) => {
+      state.obstacles.push({
+        type: piece.type,
+        x: cursorBeat * pixelsPerBeat,
+        width: piece.width,
+        height: piece.height
+      });
+
+      cursorBeat += piece.beatsAfter;
+    });
+
+    state.nextSpawnBeat = cursorBeat + 1;
+  }
+}
+
 function updatePlayer(deltaFactor) {
-  state.player.velocityY += config.gravity * deltaFactor;
+  const gravity = state.player.velocityY < 0 ? config.gravity : config.fallGravity;
+  state.player.velocityY += gravity * deltaFactor;
   state.player.y += state.player.velocityY * deltaFactor;
-  state.player.rotation = Math.min(0.7, state.player.rotation + 0.05 * deltaFactor);
+  state.player.rotation = Math.min(1.35, state.player.rotation + 0.075 * deltaFactor);
+  state.playerTrail = Math.max(0, state.playerTrail - 0.08 * deltaFactor);
 
   const groundY = getGroundY() - state.player.size;
 
@@ -178,51 +479,97 @@ function updatePlayer(deltaFactor) {
   }
 }
 
-function updateObstacles(deltaFactor) {
-  state.obstacleTimer += deltaFactor;
+function updateLevelProgress(deltaFactor) {
+  state.totalDistance += state.speed * deltaFactor;
+  state.levelDistance += state.speed * deltaFactor;
+  state.score = state.levelStartScore + Math.floor(state.levelDistance / 12);
+  state.speed += currentLevel().speedRamp * deltaFactor;
 
-  if (state.obstacleTimer >= config.obstacleGap / state.speed) {
-    state.obstacleTimer = 0;
-    createObstacle();
+  const beatMs = currentLevel().beatMs;
+  state.beatClock += (1000 / 60) * deltaFactor;
+
+  while (state.beatClock >= beatMs) {
+    state.beatClock -= beatMs;
+    state.beatIndex += 1;
+    playBeat();
   }
 
   for (let index = state.obstacles.length - 1; index >= 0; index -= 1) {
     const obstacle = state.obstacles[index];
-    obstacle.x -= state.speed * deltaFactor;
 
-    if (!obstacle.passed && obstacle.x + obstacle.width < state.player.x) {
-      obstacle.passed = true;
-    }
-
-    if (obstacle.x + obstacle.width < -20) {
+    if (obstacle.x + obstacle.width < state.totalDistance + state.player.x - 260) {
       state.obstacles.splice(index, 1);
+    }
+  }
+
+  queuePatternIfNeeded();
+
+  if (state.levelDistance >= getLevelDistanceTarget()) {
+    completeLevel();
+  }
+
+  updateStats();
+}
+
+function updateParticles(deltaFactor) {
+  for (let index = state.particles.length - 1; index >= 0; index -= 1) {
+    const particle = state.particles[index];
+    particle.x += particle.vx * deltaFactor;
+    particle.y += particle.vy * deltaFactor;
+    particle.vy += 0.18 * deltaFactor;
+    particle.life -= deltaFactor;
+
+    if (particle.life <= 0) {
+      state.particles.splice(index, 1);
     }
   }
 }
 
-function updateScore(deltaFactor) {
-  state.distance += state.speed * deltaFactor;
-  state.score = Math.floor(state.distance / 10);
-  state.speed += config.speedRamp * deltaFactor;
-  updateStats();
+function updateEffects(deltaFactor) {
+  state.pulse += config.pulseSpeed * deltaFactor;
+  state.flashAlpha = Math.max(0, state.flashAlpha - 0.03 * deltaFactor);
+  state.shake *= Math.pow(config.shakeDecay, deltaFactor);
+
+  if (state.shake < 0.2) {
+    state.shake = 0;
+  }
 }
 
 function checkCollision() {
-  const playerLeft = state.player.x + 4;
-  const playerRight = state.player.x + state.player.size - 4;
-  const playerTop = state.player.y + 4;
+  const playerLeft = state.player.x + 5;
+  const playerRight = state.player.x + state.player.size - 5;
+  const playerTop = state.player.y + 5;
   const playerBottom = state.player.y + state.player.size - 4;
   const groundY = getGroundY();
 
   for (const obstacle of state.obstacles) {
+    const screenX = obstacle.x - state.totalDistance;
     const obstacleTop = groundY - obstacle.height;
-    const overlaps =
-      playerRight > obstacle.x &&
-      playerLeft < obstacle.x + obstacle.width &&
-      playerBottom > obstacleTop &&
-      playerTop < groundY;
 
-    if (overlaps) {
+    if (obstacle.type === "block") {
+      const overlaps =
+        playerRight > screenX + 3 &&
+        playerLeft < screenX + obstacle.width - 3 &&
+        playerBottom > obstacleTop + 3 &&
+        playerTop < groundY - 2;
+
+      if (overlaps) {
+        return true;
+      }
+
+      continue;
+    }
+
+    const spikeLeft = screenX + 5;
+    const spikeRight = screenX + obstacle.width - 5;
+    const spikeTop = obstacleTop + 10;
+    const overlapsSpike =
+      playerRight > spikeLeft &&
+      playerLeft < spikeRight &&
+      playerBottom > spikeTop &&
+      playerTop < groundY - 2;
+
+    if (overlapsSpike) {
       return true;
     }
   }
@@ -231,21 +578,30 @@ function checkCollision() {
 }
 
 function drawBackground() {
+  const level = currentLevel();
+  const pulse = (Math.sin(state.pulse) + 1) / 2;
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, "#0b1730");
-  gradient.addColorStop(0.55, "#0a1430");
-  gradient.addColorStop(1, "#08111f");
+  gradient.addColorStop(0, level.backgroundTop);
+  gradient.addColorStop(0.52, level.backgroundBottom);
+  gradient.addColorStop(1, "#07101d");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(49, 233, 255, 0.08)";
+  ctx.fillStyle = level.accentSoft;
   ctx.beginPath();
-  ctx.arc(canvas.width * 0.18, canvas.height * 0.18, 120, 0, Math.PI * 2);
+  ctx.arc(canvas.width * 0.18, canvas.height * 0.2, 120 + pulse * 16, 0, Math.PI * 2);
   ctx.fill();
 
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.035 + pulse * 0.025})`;
+  ctx.beginPath();
+  ctx.arc(canvas.width * 0.82, canvas.height * 0.18, 92 + pulse * 12, 0, Math.PI * 2);
+  ctx.fill();
+
+  const gridOffset = -(state.totalDistance * 0.35) % 64;
   ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
   ctx.lineWidth = 1;
-  for (let x = 0; x <= canvas.width; x += 64) {
+
+  for (let x = gridOffset; x <= canvas.width + 64; x += 64) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.height);
@@ -254,11 +610,19 @@ function drawBackground() {
 }
 
 function drawGround() {
+  const level = currentLevel();
   const groundY = getGroundY();
-  ctx.fillStyle = "#101e3a";
+  const lineOffset = -(state.totalDistance * 0.8) % 54;
+
+  ctx.fillStyle = level.ground;
   ctx.fillRect(0, groundY, canvas.width, config.groundHeight);
 
-  ctx.strokeStyle = "#31e9ff";
+  for (let x = lineOffset; x <= canvas.width + 54; x += 54) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.fillRect(x, groundY + 12, 28, 3);
+  }
+
+  ctx.strokeStyle = level.accent;
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(0, groundY);
@@ -267,15 +631,21 @@ function drawGround() {
 }
 
 function drawPlayer() {
+  if (state.playerTrail > 0) {
+    ctx.save();
+    ctx.globalAlpha = state.playerTrail * 0.35;
+    ctx.fillStyle = currentLevel().accent;
+    ctx.fillRect(state.player.x - 18, state.player.y + 6, 14, state.player.size - 12);
+    ctx.restore();
+  }
+
   ctx.save();
   ctx.translate(state.player.x + state.player.size / 2, state.player.y + state.player.size / 2);
   ctx.rotate(state.player.rotation);
-
   ctx.shadowColor = "rgba(255, 228, 77, 0.75)";
   ctx.shadowBlur = 18;
   ctx.fillStyle = "#ffe44d";
   ctx.fillRect(-state.player.size / 2, -state.player.size / 2, state.player.size, state.player.size);
-
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#10213a";
   ctx.fillRect(-10, -6, 6, 6);
@@ -287,33 +657,76 @@ function drawObstacles() {
   const groundY = getGroundY();
 
   for (const obstacle of state.obstacles) {
+    const screenX = obstacle.x - state.totalDistance;
+
+    if (screenX > canvas.width + 60 || screenX + obstacle.width < -60) {
+      continue;
+    }
+
+    if (obstacle.type === "block") {
+      ctx.save();
+      ctx.shadowColor = `${currentLevel().accent}88`;
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = currentLevel().accent;
+      ctx.fillRect(screenX, groundY - obstacle.height, obstacle.width, obstacle.height);
+      ctx.restore();
+
+      ctx.fillStyle = "#0a1730";
+      ctx.fillRect(screenX + 8, groundY - obstacle.height + 8, obstacle.width - 16, obstacle.height - 16);
+      continue;
+    }
+
     ctx.fillStyle = "#ff4d9a";
     ctx.beginPath();
-    ctx.moveTo(obstacle.x, groundY);
-    ctx.lineTo(obstacle.x + obstacle.width / 2, groundY - obstacle.height);
-    ctx.lineTo(obstacle.x + obstacle.width, groundY);
+    ctx.moveTo(screenX, groundY);
+    ctx.lineTo(screenX + obstacle.width / 2, groundY - obstacle.height);
+    ctx.lineTo(screenX + obstacle.width, groundY);
     ctx.closePath();
     ctx.fill();
-
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 1.5;
     ctx.stroke();
   }
 }
 
-function draw() {
-  drawBackground();
-  drawGround();
-  drawObstacles();
-  drawPlayer();
+function drawParticles() {
+  for (const particle of state.particles) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, particle.life / 24);
+    ctx.fillStyle = particle.color;
+    ctx.fillRect(particle.x - state.totalDistance, particle.y, particle.size, particle.size);
+    ctx.restore();
+  }
 }
 
-function gameLoop(timestamp) {
-  if (!state.running) {
-    animationFrameId = window.requestAnimationFrame(gameLoop);
+function drawFlash() {
+  if (state.flashAlpha <= 0) {
     return;
   }
 
+  ctx.save();
+  ctx.globalAlpha = state.flashAlpha;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+}
+
+function draw() {
+  const shakeX = state.shake ? (Math.random() - 0.5) * state.shake : 0;
+  const shakeY = state.shake ? (Math.random() - 0.5) * state.shake * 0.6 : 0;
+
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+  drawBackground();
+  drawGround();
+  drawObstacles();
+  drawParticles();
+  drawPlayer();
+  ctx.restore();
+  drawFlash();
+}
+
+function gameLoop(timestamp) {
   if (!state.lastTimestamp) {
     state.lastTimestamp = timestamp;
   }
@@ -321,12 +734,16 @@ function gameLoop(timestamp) {
   const deltaFactor = Math.min(2.2, (timestamp - state.lastTimestamp) / (1000 / 60));
   state.lastTimestamp = timestamp;
 
-  updatePlayer(deltaFactor);
-  updateObstacles(deltaFactor);
-  updateScore(deltaFactor);
+  if (state.running) {
+    updatePlayer(deltaFactor);
+    updateLevelProgress(deltaFactor);
+  }
+
+  updateParticles(deltaFactor);
+  updateEffects(deltaFactor);
   draw();
 
-  if (checkCollision()) {
+  if (state.running && checkCollision()) {
     endGame();
   }
 
@@ -339,7 +756,7 @@ function handlePointerInput(event) {
   }
 
   event.preventDefault();
-  jump();
+  handleJumpInput();
 }
 
 function handleKeyboardInput(event) {
@@ -348,18 +765,27 @@ function handleKeyboardInput(event) {
   }
 
   event.preventDefault();
-  jump();
+  handleJumpInput();
 }
 
-restartButton.addEventListener("click", resetGame);
-overlayButton.addEventListener("click", () => {
-  if (state.gameOver) {
-    resetGame();
-  }
-  startGame();
+restartButton.addEventListener("click", () => {
+  state.score = state.levelStartScore;
+  state.totalDistance = state.levelStartScore * 12;
+  loadLevel(state.currentLevelIndex, true);
 });
+
+muteButton.addEventListener("click", () => {
+  isMuted = !isMuted;
+  updateMuteButton();
+});
+
+overlayButton.addEventListener("click", () => {
+  handleJumpInput();
+});
+
 canvas.addEventListener("pointerdown", handlePointerInput);
 document.addEventListener("keydown", handleKeyboardInput);
 
-resetGame();
+updateMuteButton();
+loadLevel(0, true);
 animationFrameId = window.requestAnimationFrame(gameLoop);

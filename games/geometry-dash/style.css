@@ -1,6 +1,6 @@
 :root {
-  --bg-top: #071122;
-  --bg-bottom: #05070f;
+  --bg-top: #0c1e37;
+  --bg-bottom: #09101d;
   --panel: rgba(10, 18, 34, 0.88);
   --panel-border: rgba(255, 255, 255, 0.1);
   --text: #f7fbff;
@@ -8,6 +8,7 @@
   --cyan: #31e9ff;
   --pink: #ff4d9a;
   --yellow: #ffe44d;
+  --progress: #31e9ff;
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
 }
 
@@ -77,6 +78,13 @@ button {
   margin-bottom: 1rem;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .eyebrow {
   margin: 0 0 0.5rem;
   text-transform: uppercase;
@@ -132,11 +140,22 @@ h1 {
   box-shadow: 0 12px 30px rgba(255, 185, 60, 0.24);
 }
 
+.button-secondary {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.button-secondary.is-muted {
+  background: rgba(255, 77, 154, 0.14);
+  border-color: rgba(255, 77, 154, 0.28);
+}
+
 .status-bar {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.9rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .stat-card {
@@ -157,7 +176,28 @@ h1 {
 .stat-value {
   display: block;
   margin-top: 0.35rem;
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-size: clamp(1.35rem, 4vw, 2rem);
+}
+
+.progress-shell {
+  margin-bottom: 1rem;
+}
+
+.progress-track {
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--progress), #9dffef);
+  box-shadow: 0 0 18px rgba(49, 233, 255, 0.28);
+  transition: width 140ms linear;
 }
 
 .game-stage {
@@ -244,6 +284,14 @@ canvas {
   .hero {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .status-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .button {
