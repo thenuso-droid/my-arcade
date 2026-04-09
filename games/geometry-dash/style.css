@@ -200,6 +200,37 @@ h1 {
   transition: width 140ms linear;
 }
 
+.level-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.level-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.7rem 0.95rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.level-button:hover,
+.level-button:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.level-button.is-active {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
 .game-stage {
   position: relative;
 }
@@ -294,8 +325,18 @@ canvas {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .level-select {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .button {
     width: 100%;
     min-height: 48px;
+  }
+
+  .level-button {
+    width: 100%;
+    min-height: 46px;
   }
 }

@@ -8,6 +8,7 @@ const progressValue = document.getElementById("progressValue");
 const progressBar = document.getElementById("progressBar");
 const restartButton = document.getElementById("restartButton");
 const muteButton = document.getElementById("muteButton");
+const levelButtons = document.querySelectorAll(".level-button");
 const overlay = document.getElementById("overlay");
 const overlayTag = document.getElementById("overlayTag");
 const overlayTitle = document.getElementById("overlayTitle");
@@ -19,11 +20,12 @@ const BEST_LEVEL_KEY = "geometry-dash-best-level";
 
 const levels = [
   {
-    name: "Level 1",
+    name: "Stereo Madness",
     speed: 5.9,
     speedRamp: 0.00018,
     beatMs: 520,
     lengthBeats: 36,
+    startBeats: 3,
     backgroundTop: "#0c1e37",
     backgroundBottom: "#09101d",
     ground: "#132243",
@@ -40,11 +42,12 @@ const levels = [
     melody: [392, 523.25, 587.33, 523.25]
   },
   {
-    name: "Level 2",
+    name: "Back On Track",
     speed: 6.8,
     speedRamp: 0.00025,
     beatMs: 470,
     lengthBeats: 40,
+    startBeats: 3,
     backgroundTop: "#191238",
     backgroundBottom: "#0a0d1b",
     ground: "#25184b",
@@ -68,11 +71,12 @@ const levels = [
     melody: [440, 659.25, 587.33, 698.46]
   },
   {
-    name: "Level 3",
+    name: "Polargeist",
     speed: 7.6,
     speedRamp: 0.00032,
     beatMs: 430,
     lengthBeats: 44,
+    startBeats: 4,
     backgroundTop: "#122d28",
     backgroundBottom: "#08110f",
     ground: "#183932",
@@ -122,6 +126,7 @@ const state = {
   totalDistance: 0,
   levelDistance: 0,
   levelStartScore: 0,
+  levelWorldOffset: 0,
   speed: levels[0].speed,
   lastTimestamp: 0,
   nextSpawnBeat: 2,
@@ -239,6 +244,13 @@ function updateStats() {
   levelValue.textContent = String(state.currentLevelIndex + 1);
   progressValue.textContent = `${progress}%`;
   progressBar.style.width = `${progress}%`;
+
+  levelButtons.forEach((button) => {
+    button.classList.toggle(
+      "is-active",
+      Number(button.dataset.levelIndex) === state.currentLevelIndex
+    );
+  });
 }
 
 function showOverlay(tag, title, message, buttonLabel) {
@@ -306,8 +318,9 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   state.speed = currentLevel().speed;
   state.levelDistance = 0;
   state.levelStartScore = state.score;
+  state.levelWorldOffset = state.totalDistance;
   state.lastTimestamp = 0;
-  state.nextSpawnBeat = 2;
+  state.nextSpawnBeat = currentLevel().startBeats;
   state.beatClock = 0;
   state.beatIndex = 0;
   state.flashAlpha = 0;
@@ -335,6 +348,12 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   }
 }
 
+function chooseLevel(levelIndex) {
+  state.score = 0;
+  state.totalDistance = 0;
+  loadLevel(levelIndex, true);
+}
+
 function resetRun() {
   state.score = 0;
   state.totalDistance = 0;
@@ -344,6 +363,7 @@ function resetRun() {
 function restartCurrentLevelAndJump() {
   state.score = state.levelStartScore;
   state.totalDistance = state.levelStartScore * 12;
+  state.totalDistance = state.levelWorldOffset;
   loadLevel(state.currentLevelIndex, false);
   startGame();
   triggerJump();
@@ -441,8 +461,9 @@ function endGame() {
 function queuePatternIfNeeded() {
   const cameraAnchor = state.totalDistance + state.player.x - 120;
   const pixelsPerBeat = getPixelsPerBeat();
+  const levelOrigin = state.levelWorldOffset;
 
-  while (state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
+  while (levelOrigin + state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
     const patterns = currentLevel().patterns;
     const pattern = patterns[state.beatIndex % patterns.length];
     let cursorBeat = state.nextSpawnBeat;
@@ -450,7 +471,7 @@ function queuePatternIfNeeded() {
     pattern.forEach((piece) => {
       state.obstacles.push({
         type: piece.type,
-        x: cursorBeat * pixelsPerBeat,
+        x: levelOrigin + cursorBeat * pixelsPerBeat,
         width: piece.width,
         height: piece.height
       });
@@ -770,13 +791,19 @@ function handleKeyboardInput(event) {
 
 restartButton.addEventListener("click", () => {
   state.score = state.levelStartScore;
-  state.totalDistance = state.levelStartScore * 12;
+  state.totalDistance = state.levelWorldOffset;
   loadLevel(state.currentLevelIndex, true);
 });
 
 muteButton.addEventListener("click", () => {
   isMuted = !isMuted;
   updateMuteButton();
+});
+
+levelButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    chooseLevel(Number(button.dataset.levelIndex));
+  });
 });
 
 overlayButton.addEventListener("click", () => {
