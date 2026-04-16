@@ -9,16 +9,22 @@ const progressBar = document.getElementById("progressBar");
 const restartButton = document.getElementById("restartButton");
 const muteButton = document.getElementById("muteButton");
 const menuButton = document.getElementById("menuButton");
+const statusBar = document.getElementById("statusBar");
+const hudProgressShell = document.getElementById("hudProgressShell");
 const levelMenu = document.getElementById("levelMenu");
-const levelButtons = document.querySelectorAll(".level-button");
-const levelStatusElements = document.querySelectorAll("[data-level-status]");
+const prevLevelButton = document.getElementById("prevLevelButton");
+const nextLevelButton = document.getElementById("nextLevelButton");
+const playLevelButton = document.getElementById("playLevelButton");
+const menuLevelNumber = document.getElementById("menuLevelNumber");
+const menuLevelTitle = document.getElementById("menuLevelTitle");
+const menuLevelStatus = document.getElementById("menuLevelStatus");
+const menuProgressPercent = document.getElementById("menuProgressPercent");
+const menuProgressFill = document.getElementById("menuProgressFill");
+const menuResultBanner = document.getElementById("menuResultBanner");
+const menuResultTag = document.getElementById("menuResultTag");
+const menuResultMessage = document.getElementById("menuResultMessage");
+const levelDots = document.querySelectorAll(".level-dot");
 const gameStage = document.getElementById("gameStage");
-const resultScreen = document.getElementById("resultScreen");
-const resultTag = document.getElementById("resultTag");
-const resultTitle = document.getElementById("resultTitle");
-const resultMessage = document.getElementById("resultMessage");
-const resultPrimaryButton = document.getElementById("resultPrimaryButton");
-const resultSecondaryButton = document.getElementById("resultSecondaryButton");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
 const LEVEL_PROGRESS_KEY = "geometry-dash-level-progress";
@@ -141,7 +147,9 @@ const state = {
   shake: 0,
   playerTrail: 0,
   currentLevelIndex: 0,
+  selectedLevelIndex: 0,
   lastLoggedProgress: -1,
+  menuMessage: null,
   player: {
     x: 148,
     y: 0,
@@ -156,6 +164,10 @@ const state = {
 
 function currentLevel() {
   return levels[state.currentLevelIndex];
+}
+
+function selectedLevel() {
+  return levels[state.selectedLevelIndex];
 }
 
 function getLevelStorageId(levelIndex) {
@@ -312,7 +324,7 @@ function getPixelsPerBeat() {
   return currentLevel().speed * (currentLevel().beatMs / (1000 / 60));
 }
 
-function updateStats() {
+function updateHudStats() {
   const progress = getCurrentProgressPercent();
 
   scoreValue.textContent = String(state.score);
@@ -320,20 +332,52 @@ function updateStats() {
   levelValue.textContent = String(state.currentLevelIndex + 1);
   progressValue.textContent = `${progress}%`;
   progressBar.style.width = `${progress}%`;
+}
 
-  levelButtons.forEach((button) => {
-    button.classList.toggle(
-      "is-active",
-      Number(button.dataset.levelIndex) === state.currentLevelIndex
-    );
+function renderMenuCard() {
+  const levelIndex = state.selectedLevelIndex;
+  const entry = levelProgress[levelIndex];
+
+  menuLevelNumber.textContent = `Level ${levelIndex + 1}`;
+  menuLevelTitle.textContent = selectedLevel().name;
+  menuLevelStatus.textContent = entry.completed ? "Completed" : `Best: ${entry.bestPercent}%`;
+  menuLevelStatus.classList.toggle("is-complete", entry.completed);
+  menuProgressPercent.textContent = `${entry.bestPercent}%`;
+  menuProgressFill.style.width = `${entry.bestPercent}%`;
+
+  levelDots.forEach((dot) => {
+    dot.classList.toggle("is-active", Number(dot.dataset.levelIndex) === levelIndex);
   });
 
-  levelStatusElements.forEach((element) => {
-    const levelIndex = Number(element.dataset.levelStatus);
-    const entry = levelProgress[levelIndex];
-    element.textContent = entry.completed ? "Completed" : `Best: ${entry.bestPercent}%`;
-    element.classList.toggle("is-complete", entry.completed);
-  });
+  prevLevelButton.disabled = state.mode === "playing";
+  nextLevelButton.disabled = state.mode === "playing";
+}
+
+function showMenuBanner(tag, message, tone) {
+  state.menuMessage = { tag, message, tone };
+  menuResultTag.textContent = tag;
+  menuResultMessage.textContent = message;
+  menuResultBanner.classList.remove("hidden", "is-complete", "is-failed");
+  if (tone === "complete") {
+    menuResultBanner.classList.add("is-complete");
+  } else if (tone === "failed") {
+    menuResultBanner.classList.add("is-failed");
+  }
+}
+
+function hideMenuBanner() {
+  state.menuMessage = null;
+  menuResultBanner.classList.add("hidden");
+  menuResultBanner.classList.remove("is-complete", "is-failed");
+}
+
+function renderMenuMessage() {
+  if (!state.menuMessage) {
+    hideMenuBanner();
+    return;
+  }
+
+  showMenuBanner(state.menuMessage.tag, state.menuMessage.message, state.menuMessage.tone);
 }
 
 function setMode(mode) {
@@ -341,24 +385,13 @@ function setMode(mode) {
   state.running = mode === "playing";
   state.gameOver = mode === "gameOver";
 
-  levelMenu.classList.toggle("hidden", mode !== "menu");
+  const showMenu = mode !== "playing";
+  levelMenu.classList.toggle("hidden", !showMenu);
   gameStage.classList.toggle("hidden", mode !== "playing");
-  resultScreen.classList.toggle(
-    "hidden",
-    mode !== "gameOver" && mode !== "levelComplete"
-  );
+  statusBar.classList.toggle("hidden", mode !== "playing");
+  hudProgressShell.classList.toggle("hidden", mode !== "playing");
   restartButton.classList.toggle("hidden", mode !== "playing");
-  menuButton.classList.toggle("hidden", mode === "menu");
-}
-
-function configureResultScreen(configOptions) {
-  resultTag.textContent = configOptions.tag;
-  resultTitle.textContent = configOptions.title;
-  resultMessage.textContent = configOptions.message;
-  resultPrimaryButton.textContent = configOptions.primaryLabel;
-  resultSecondaryButton.textContent = configOptions.secondaryLabel || "Back to Level Select";
-  resultPrimaryButton.dataset.action = configOptions.primaryAction;
-  resultSecondaryButton.dataset.action = configOptions.secondaryAction || "menu";
+  menuButton.classList.toggle("hidden", showMenu);
 }
 
 function resetPlayer() {
@@ -426,27 +459,33 @@ function prepareLevel(levelIndex) {
   state.pulse = 0;
   resetPlayer();
   applyLevelTheme();
-  updateStats();
+  updateHudStats();
   draw();
 }
 
-function showMenu(levelIndex = state.currentLevelIndex) {
-  prepareLevel(levelIndex);
-  configureResultScreen({
-    tag: "Level Select",
-    title: currentLevel().name,
-    message: "Choose a level to start playing.",
-    primaryLabel: "Start Level",
-    primaryAction: "start",
-    secondaryLabel: "Back to Arcade",
-    secondaryAction: "arcade"
-  });
+function selectLevel(levelIndex) {
+  if (state.mode === "playing") {
+    return;
+  }
+
+  const count = levels.length;
+  state.selectedLevelIndex = (levelIndex + count) % count;
+  renderMenuCard();
+}
+
+function showMenu(levelIndex = state.selectedLevelIndex) {
+  state.selectedLevelIndex = levelIndex;
+  applyLevelTheme();
   setMode("menu");
+  renderMenuCard();
+  renderMenuMessage();
 }
 
 function startLevel(levelIndex) {
+  state.selectedLevelIndex = levelIndex;
   prepareLevel(levelIndex);
   ensureAudio();
+  hideMenuBanner();
   setMode("playing");
 
   console.debug("[Neon Cube] Start level", {
@@ -462,46 +501,52 @@ function restartCurrentLevel() {
   startLevel(state.currentLevelIndex);
 }
 
+function returnToSelectorWithMessage(levelIndex, tag, message, tone) {
+  state.selectedLevelIndex = levelIndex;
+  showMenu(levelIndex);
+  showMenuBanner(tag, message, tone);
+  renderMenuCard();
+}
+
 function completeLevel() {
   const completedPercent = 100;
-  const nextLevelIndex = state.currentLevelIndex + 1;
-  const hasNextLevel = nextLevelIndex < levels.length;
+  const currentIndex = state.currentLevelIndex;
+  const nextLevelIndex = (currentIndex + 1) % levels.length;
+  const hasNextLevel = currentIndex + 1 < levels.length;
 
   console.debug("[Neon Cube] Level completion trigger", {
-    level: getLevelStorageId(state.currentLevelIndex),
+    level: getLevelStorageId(currentIndex),
     percent: completedPercent,
     distance: state.levelDistance,
     targetDistance: getLevelDistanceTarget()
   });
 
   setMode("levelComplete");
-  saveLevelProgress(state.currentLevelIndex, completedPercent);
+  saveLevelProgress(currentIndex, completedPercent);
 
   if (state.score > highScore) {
     highScore = state.score;
     writeScore(HIGH_SCORE_KEY, highScore);
   }
 
-  updateStats();
-  configureResultScreen({
-    tag: "Level Complete",
-    title: "100%",
-    message: hasNextLevel
-      ? `${currentLevel().name} complete. Ready for ${levels[nextLevelIndex].name}?`
-      : `${currentLevel().name} complete. You cleared the final level.`,
-    primaryLabel: hasNextLevel ? "Next Level" : "Replay Level",
-    primaryAction: hasNextLevel ? "next" : "replay",
-    secondaryLabel: "Back to Level Select",
-    secondaryAction: "menu"
-  });
+  updateHudStats();
+  returnToSelectorWithMessage(
+    hasNextLevel ? nextLevelIndex : currentIndex,
+    "Level Complete",
+    hasNextLevel
+      ? `${levels[currentIndex].name} is complete. ${levels[nextLevelIndex].name} is ready to play.`
+      : `${levels[currentIndex].name} is complete. You cleared every level in Neon Cube.`,
+    "complete"
+  );
 }
 
 function endGame() {
   const reachedPercent = getCurrentProgressPercent();
-  const savedEntry = saveLevelProgress(state.currentLevelIndex, reachedPercent);
+  const currentIndex = state.currentLevelIndex;
+  const savedEntry = saveLevelProgress(currentIndex, reachedPercent);
 
   console.debug("[Neon Cube] Game over", {
-    level: getLevelStorageId(state.currentLevelIndex),
+    level: getLevelStorageId(currentIndex),
     reachedPercent,
     bestPercent: savedEntry.bestPercent
   });
@@ -515,17 +560,14 @@ function endGame() {
     writeScore(HIGH_SCORE_KEY, highScore);
   }
 
-  updateStats();
-  configureResultScreen({
-    tag: "Game Over",
-    title: `You reached ${reachedPercent}%`,
-    message: `Best: ${savedEntry.bestPercent}% on ${currentLevel().name}.`,
-    primaryLabel: "Restart Level",
-    primaryAction: "restart",
-    secondaryLabel: "Back to Level Select",
-    secondaryAction: "menu"
-  });
+  updateHudStats();
   setMode("gameOver");
+  returnToSelectorWithMessage(
+    currentIndex,
+    "Attempt Complete",
+    `You reached ${reachedPercent}% on ${levels[currentIndex].name}. Best: ${savedEntry.bestPercent}%.`,
+    "failed"
+  );
 }
 
 function queuePatternIfNeeded() {
@@ -613,7 +655,7 @@ function updateLevelProgress(deltaFactor) {
     return;
   }
 
-  updateStats();
+  updateHudStats();
 }
 
 function updateParticles(deltaFactor) {
@@ -881,37 +923,6 @@ function handlePointerInput(event) {
   triggerJump();
 }
 
-function handleResultPrimaryAction() {
-  const action = resultPrimaryButton.dataset.action;
-
-  if (action === "restart" || action === "replay") {
-    restartCurrentLevel();
-    return;
-  }
-
-  if (action === "next") {
-    startLevel(Math.min(state.currentLevelIndex + 1, levels.length - 1));
-    return;
-  }
-
-  if (action === "start") {
-    startLevel(state.currentLevelIndex);
-  }
-}
-
-function handleResultSecondaryAction() {
-  const action = resultSecondaryButton.dataset.action;
-
-  if (action === "menu") {
-    showMenu(state.currentLevelIndex);
-    return;
-  }
-
-  if (action === "arcade") {
-    window.location.href = "../../index.html";
-  }
-}
-
 function handleKeyboardInput(event) {
   if (event.code !== "Space") {
     return;
@@ -926,8 +937,8 @@ function handleKeyboardInput(event) {
     return;
   }
 
-  if (state.mode === "gameOver" || state.mode === "levelComplete") {
-    handleResultPrimaryAction();
+  if (state.mode !== "playing") {
+    startLevel(state.selectedLevelIndex);
   }
 }
 
@@ -944,27 +955,29 @@ muteButton.addEventListener("click", () => {
   updateMuteButton();
 });
 
-levelButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    if (state.mode !== "menu") {
-      return;
-    }
+prevLevelButton.addEventListener("click", () => {
+  selectLevel(state.selectedLevelIndex - 1);
+});
 
-    startLevel(Number(button.dataset.levelIndex));
+nextLevelButton.addEventListener("click", () => {
+  selectLevel(state.selectedLevelIndex + 1);
+});
+
+playLevelButton.addEventListener("click", () => {
+  startLevel(state.selectedLevelIndex);
+});
+
+levelDots.forEach((dot) => {
+  dot.addEventListener("click", () => {
+    selectLevel(Number(dot.dataset.levelIndex));
   });
-});
-
-resultPrimaryButton.addEventListener("click", () => {
-  handleResultPrimaryAction();
-});
-
-resultSecondaryButton.addEventListener("click", () => {
-  handleResultSecondaryAction();
 });
 
 canvas.addEventListener("pointerdown", handlePointerInput);
 document.addEventListener("keydown", handleKeyboardInput);
 
 updateMuteButton();
+applyLevelTheme();
+updateHudStats();
 showMenu(0);
 animationFrameId = window.requestAnimationFrame(gameLoop);

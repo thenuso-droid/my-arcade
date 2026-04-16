@@ -23,7 +23,7 @@
           <div>
             <p class="eyebrow">Arcade Runner</p>
             <h1>Neon Cube</h1>
-            <p class="hero-copy">Jump on the beat, clear each level, and survive the neon course.</p>
+            <p class="hero-copy">Choose a course, watch your completion climb, and jump straight into the level.</p>
           </div>
           <div class="hero-actions">
             <button id="muteButton" class="button button-secondary" type="button">Music: On</button>
@@ -32,7 +32,7 @@
           </div>
         </header>
 
-        <section class="status-bar" aria-label="Game status">
+        <section id="statusBar" class="status-bar" aria-label="Game status">
           <div class="stat-card">
             <span class="stat-label">Score</span>
             <strong id="scoreValue" class="stat-value">0</strong>
@@ -51,58 +51,54 @@
           </div>
         </section>
 
-        <section class="progress-shell" aria-label="Level progress">
+        <section id="hudProgressShell" class="progress-shell" aria-label="Level progress">
           <div class="progress-track">
             <div id="progressBar" class="progress-bar"></div>
           </div>
         </section>
 
         <section id="levelMenu" class="level-menu" aria-label="Level select">
-          <div class="level-menu-header">
-            <p class="level-menu-label">Level Select</p>
-            <h2>Choose a level to start</h2>
-            <p class="level-menu-copy">Pick any course below. Your best percentage and completed runs are saved automatically.</p>
-          </div>
+          <div class="level-selector-shell">
+            <button id="prevLevelButton" class="selector-arrow" type="button" aria-label="Previous level">
+              &#10094;
+            </button>
 
-          <div class="level-select">
-            <button class="level-button" type="button" data-level-index="0">
-              <span class="level-button-copy">
-                <span class="level-button-label">Level 1</span>
-                <span class="level-button-name">Stereo Madness</span>
-              </span>
-              <span class="level-button-status" data-level-status="0">Best: 0%</span>
-            </button>
-            <button class="level-button" type="button" data-level-index="1">
-              <span class="level-button-copy">
-                <span class="level-button-label">Level 2</span>
-                <span class="level-button-name">Back On Track</span>
-              </span>
-              <span class="level-button-status" data-level-status="1">Best: 0%</span>
-            </button>
-            <button class="level-button" type="button" data-level-index="2">
-              <span class="level-button-copy">
-                <span class="level-button-label">Level 3</span>
-                <span class="level-button-name">Polargeist</span>
-              </span>
-              <span class="level-button-status" data-level-status="2">Best: 0%</span>
+            <div class="selector-card">
+              <p class="level-menu-label">Level Select</p>
+              <p id="menuLevelNumber" class="menu-level-number">Level 1</p>
+              <h2 id="menuLevelTitle" class="menu-level-title">Stereo Madness</h2>
+              <p id="menuLevelStatus" class="menu-level-status">Best: 0%</p>
+
+              <div class="selector-progress-head">
+                <span>Progress</span>
+                <strong id="menuProgressPercent">0%</strong>
+              </div>
+              <div class="selector-progress-track" aria-label="Selected level best progress">
+                <div id="menuProgressFill" class="selector-progress-fill"></div>
+              </div>
+
+              <div id="menuResultBanner" class="menu-result-banner hidden" aria-live="polite">
+                <p id="menuResultTag" class="menu-result-tag">Level Complete</p>
+                <p id="menuResultMessage" class="menu-result-message">Progress updated.</p>
+              </div>
+
+              <button id="playLevelButton" class="button play-button" type="button">Play</button>
+
+              <div class="level-dots" aria-label="Level positions">
+                <button class="level-dot" type="button" data-level-index="0" aria-label="Go to Level 1"></button>
+                <button class="level-dot" type="button" data-level-index="1" aria-label="Go to Level 2"></button>
+                <button class="level-dot" type="button" data-level-index="2" aria-label="Go to Level 3"></button>
+              </div>
+            </div>
+
+            <button id="nextLevelButton" class="selector-arrow" type="button" aria-label="Next level">
+              &#10095;
             </button>
           </div>
         </section>
 
         <section id="gameStage" class="game-stage hidden">
           <canvas id="gameCanvas" width="960" height="420" aria-label="Neon Cube game area"></canvas>
-        </section>
-
-        <section id="resultScreen" class="result-screen hidden" aria-live="polite">
-          <div class="result-card">
-            <p id="resultTag" class="overlay-tag">Level Complete</p>
-            <h2 id="resultTitle">100%</h2>
-            <p id="resultMessage" class="overlay-message">Choose what you want to do next.</p>
-            <div class="result-actions">
-              <button id="resultPrimaryButton" class="button button-primary" type="button">Next Level</button>
-              <button id="resultSecondaryButton" class="button button-secondary" type="button">Back to Level Select</button>
-            </div>
-          </div>
         </section>
 
         <section class="controls-panel">
