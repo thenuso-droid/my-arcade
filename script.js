@@ -1,6 +1,7 @@
 const gameCards = document.querySelectorAll(".game-card");
 const musicToggle = document.getElementById("musicToggle");
 const highScoreElements = document.querySelectorAll("[data-high-score]");
+const progressElements = document.querySelectorAll("[data-progress-game]");
 
 const HIGH_SCORE_KEYS = {
   "2048": "2048-high-score",
@@ -30,6 +31,28 @@ highScoreElements.forEach((element) => {
     element.textContent = String(savedScore);
   } catch (error) {
     element.textContent = "0";
+  }
+});
+
+progressElements.forEach((element) => {
+  const game = element.dataset.progressGame;
+
+  if (game !== "geometry-dash") {
+    return;
+  }
+
+  try {
+    const rawProgress = localStorage.getItem("geometry-dash-level-progress");
+    const parsed = rawProgress ? JSON.parse(rawProgress) : [];
+    const completed =
+      parsed.length > 0 && parsed.every((entry) => entry && entry.completed);
+    const bestPercent = parsed.reduce((best, entry) => {
+      return Math.max(best, Number(entry?.bestPercent) || 0);
+    }, 0);
+
+    element.textContent = completed ? "Completed" : `Best: ${bestPercent}%`;
+  } catch (error) {
+    element.textContent = "0%";
   }
 });
 

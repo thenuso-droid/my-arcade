@@ -9,6 +9,7 @@ const progressBar = document.getElementById("progressBar");
 const restartButton = document.getElementById("restartButton");
 const muteButton = document.getElementById("muteButton");
 const levelButtons = document.querySelectorAll(".level-button");
+const levelStatusElements = document.querySelectorAll("[data-level-status]");
 const overlay = document.getElementById("overlay");
 const overlayTag = document.getElementById("overlayTag");
 const overlayTitle = document.getElementById("overlayTitle");
@@ -17,6 +18,7 @@ const overlayButton = document.getElementById("overlayButton");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
 const BEST_LEVEL_KEY = "geometry-dash-best-level";
+const LEVEL_PROGRESS_KEY = "geometry-dash-level-progress";
 
 const levels = [
   {
@@ -118,10 +120,12 @@ let audioContext = null;
 let isMuted = false;
 let highScore = readScore(HIGH_SCORE_KEY);
 let bestLevelReached = readScore(BEST_LEVEL_KEY) || 1;
+let levelProgress = readLevelProgress();
 
 const state = {
   running: false,
   gameOver: false,
+  pendingLevelIndex: null,
   score: 0,
   totalDistance: 0,
   levelDistance: 0,
@@ -153,6 +157,10 @@ function currentLevel() {
   return levels[state.currentLevelIndex];
 }
 
+function getCurrentProgressPercent() {
+  return Math.min(100, Math.floor((state.levelDistance / getLevelDistanceTarget()) * 100));
+}
+
 function readScore(key) {
   try {
     return Number(localStorage.getItem(key)) || 0;
@@ -167,6 +175,44 @@ function writeScore(key, value) {
   } catch (error) {
     // Ignore storage issues so gameplay still works.
   }
+}
+
+function readLevelProgress() {
+  try {
+    const raw = localStorage.getItem(LEVEL_PROGRESS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+
+    return levels.map((_, index) => {
+      const entry = parsed[index] || {};
+      return {
+        bestPercent: Math.max(0, Math.min(100, Number(entry.bestPercent) || 0)),
+        completed: Boolean(entry.completed)
+      };
+    });
+  } catch (error) {
+    return levels.map(() => ({ bestPercent: 0, completed: false }));
+  }
+}
+
+function writeLevelProgress() {
+  try {
+    localStorage.setItem(LEVEL_PROGRESS_KEY, JSON.stringify(levelProgress));
+  } catch (error) {
+    // Ignore storage failures so gameplay still works.
+  }
+}
+
+function saveLevelProgress(levelIndex, percent) {
+  const normalizedPercent = Math.max(0, Math.min(100, Math.floor(percent)));
+  const entry = levelProgress[levelIndex];
+
+  entry.bestPercent = Math.max(entry.bestPercent, normalizedPercent);
+
+  if (normalizedPercent >= 100) {
+    entry.completed = true;
+  }
+
+  writeLevelProgress();
 }
 
 function ensureAudio() {
@@ -237,7 +283,7 @@ function getLevelDistanceTarget() {
 }
 
 function updateStats() {
-  const progress = Math.min(100, Math.floor((state.levelDistance / getLevelDistanceTarget()) * 100));
+  const progress = getCurrentProgressPercent();
 
   scoreValue.textContent = String(state.score);
   highScoreValue.textContent = String(highScore);
@@ -250,6 +296,13 @@ function updateStats() {
       "is-active",
       Number(button.dataset.levelIndex) === state.currentLevelIndex
     );
+  });
+
+  levelStatusElements.forEach((element) => {
+    const levelIndex = Number(element.dataset.levelStatus);
+    const entry = levelProgress[levelIndex];
+    element.textContent = entry.completed ? "Completed" : `Best: ${entry.bestPercent}%`;
+    element.classList.toggle("is-complete", entry.completed);
   });
 }
 
@@ -315,6 +368,7 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   state.currentLevelIndex = levelIndex;
   state.running = false;
   state.gameOver = false;
+  state.pendingLevelIndex = null;
   state.speed = currentLevel().speed;
   state.levelDistance = 0;
   state.levelStartScore = state.score;
@@ -335,13 +389,15 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   draw();
 
   if (showOverlayPanel) {
+    const savedProgress = levelProgress[levelIndex];
+    const bestText = savedProgress.completed ? "Completed" : `Best: ${savedProgress.bestPercent}%`;
+    const tag = levelProgress[levelIndex].completed ? "Completed" : "Tap To Start";
+
     showOverlay(
-      levelIndex === 0 ? "Tap To Start" : "Level Complete",
+      tag,
       currentLevel().name,
-      levelIndex === 0
-        ? "Tap, click, or press space to jump with the beat."
-        : `Tap to begin ${currentLevel().name}.`,
-      levelIndex === 0 ? "Start" : "Continue"
+      `Level ${levelIndex + 1}. ${bestText}. Tap, click, or press space to start.`,
+      "Start"
     );
   } else {
     hideOverlay();
@@ -361,8 +417,8 @@ function resetRun() {
 }
 
 function restartCurrentLevelAndJump() {
+  saveLevelProgress(state.currentLevelIndex, getCurrentProgressPercent());
   state.score = state.levelStartScore;
-  state.totalDistance = state.levelStartScore * 12;
   state.totalDistance = state.levelWorldOffset;
   loadLevel(state.currentLevelIndex, false);
   startGame();
@@ -370,6 +426,11 @@ function restartCurrentLevelAndJump() {
 }
 
 function startGame() {
+  if (state.pendingLevelIndex !== null) {
+    const nextLevelIndex = state.pendingLevelIndex;
+    loadLevel(nextLevelIndex, false);
+  }
+
   if (state.running) {
     return;
   }
@@ -412,6 +473,7 @@ function completeLevel() {
   const nextIndex = state.currentLevelIndex + 1;
   const finalScore = state.score;
   state.running = false;
+  saveLevelProgress(state.currentLevelIndex, 100);
 
   if (state.score > highScore) {
     highScore = state.score;
@@ -424,9 +486,9 @@ function completeLevel() {
     loadLevel(0, false);
     updateStats();
     showOverlay(
-      "Run Complete",
-      "All Levels Clear",
-      `Final score: ${finalScore}. Tap to start again from Level 1.`,
+      "Level Complete",
+      `${currentLevel().name} Complete`,
+      `100% complete. Final score: ${finalScore}. Tap to play again.`,
       "Play Again"
     );
     return;
@@ -434,12 +496,21 @@ function completeLevel() {
 
   bestLevelReached = Math.max(bestLevelReached, nextIndex + 1);
   writeScore(BEST_LEVEL_KEY, bestLevelReached);
-  loadLevel(nextIndex, true);
+  state.pendingLevelIndex = nextIndex;
+  updateStats();
+  showOverlay(
+    "Level Complete",
+    `${currentLevel().name} Complete`,
+    `100% complete. Next up: ${levels[nextIndex].name}.`,
+    "Next Level"
+  );
 }
 
 function endGame() {
   state.running = false;
   state.gameOver = true;
+  const reachedPercent = getCurrentProgressPercent();
+  saveLevelProgress(state.currentLevelIndex, reachedPercent);
   state.flashAlpha = 0.55;
   state.shake = 16;
   spawnCollisionParticles();
@@ -453,7 +524,7 @@ function endGame() {
   showOverlay(
     "Game Over",
     "Tap To Retry",
-    `Restarting from ${currentLevel().name}. Score: ${state.score}. High score: ${highScore}.`,
+    `You reached ${reachedPercent}% on ${currentLevel().name}. Tap to retry instantly.`,
     "Retry"
   );
 }
