@@ -27,6 +27,7 @@
           </div>
           <div class="hero-actions">
             <button id="muteButton" class="button button-secondary" type="button">Music: On</button>
+            <button id="menuButton" class="button button-secondary" type="button">Level Select</button>
             <button id="restartButton" class="button button-primary" type="button">Restart</button>
           </div>
         </header>
@@ -56,32 +57,50 @@
           </div>
         </section>
 
-        <section class="level-select" aria-label="Level select">
-          <button class="level-button" type="button" data-level-index="0">
-            <span class="level-button-name">Stereo Madness</span>
-            <span class="level-button-status" data-level-status="0">Best: 0%</span>
-          </button>
-          <button class="level-button" type="button" data-level-index="1">
-            <span class="level-button-name">Back On Track</span>
-            <span class="level-button-status" data-level-status="1">Best: 0%</span>
-          </button>
-          <button class="level-button" type="button" data-level-index="2">
-            <span class="level-button-name">Polargeist</span>
-            <span class="level-button-status" data-level-status="2">Best: 0%</span>
-          </button>
+        <section id="levelMenu" class="level-menu" aria-label="Level select">
+          <div class="level-menu-header">
+            <p class="level-menu-label">Level Select</p>
+            <h2>Choose a level to start</h2>
+            <p class="level-menu-copy">Pick any course below. Your best percentage and completed runs are saved automatically.</p>
+          </div>
+
+          <div class="level-select">
+            <button class="level-button" type="button" data-level-index="0">
+              <span class="level-button-copy">
+                <span class="level-button-label">Level 1</span>
+                <span class="level-button-name">Stereo Madness</span>
+              </span>
+              <span class="level-button-status" data-level-status="0">Best: 0%</span>
+            </button>
+            <button class="level-button" type="button" data-level-index="1">
+              <span class="level-button-copy">
+                <span class="level-button-label">Level 2</span>
+                <span class="level-button-name">Back On Track</span>
+              </span>
+              <span class="level-button-status" data-level-status="1">Best: 0%</span>
+            </button>
+            <button class="level-button" type="button" data-level-index="2">
+              <span class="level-button-copy">
+                <span class="level-button-label">Level 3</span>
+                <span class="level-button-name">Polargeist</span>
+              </span>
+              <span class="level-button-status" data-level-status="2">Best: 0%</span>
+            </button>
+          </div>
         </section>
 
-        <section class="game-stage">
+        <section id="gameStage" class="game-stage hidden">
           <canvas id="gameCanvas" width="960" height="420" aria-label="Neon Cube game area"></canvas>
+        </section>
 
-          <div id="overlay" class="overlay">
-            <div class="overlay-card">
-              <p id="overlayTag" class="overlay-tag">Tap To Start</p>
-              <h2 id="overlayTitle">Neon Cube</h2>
-              <p id="overlayMessage" class="overlay-message">
-                Tap, click, or press space to jump with the beat.
-              </p>
-              <button id="overlayButton" class="button button-primary" type="button">Start</button>
+        <section id="resultScreen" class="result-screen hidden" aria-live="polite">
+          <div class="result-card">
+            <p id="resultTag" class="overlay-tag">Level Complete</p>
+            <h2 id="resultTitle">100%</h2>
+            <p id="resultMessage" class="overlay-message">Choose what you want to do next.</p>
+            <div class="result-actions">
+              <button id="resultPrimaryButton" class="button button-primary" type="button">Next Level</button>
+              <button id="resultSecondaryButton" class="button button-secondary" type="button">Back to Level Select</button>
             </div>
           </div>
         </section>

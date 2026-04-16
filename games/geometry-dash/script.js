@@ -8,16 +8,19 @@ const progressValue = document.getElementById("progressValue");
 const progressBar = document.getElementById("progressBar");
 const restartButton = document.getElementById("restartButton");
 const muteButton = document.getElementById("muteButton");
+const menuButton = document.getElementById("menuButton");
+const levelMenu = document.getElementById("levelMenu");
 const levelButtons = document.querySelectorAll(".level-button");
 const levelStatusElements = document.querySelectorAll("[data-level-status]");
-const overlay = document.getElementById("overlay");
-const overlayTag = document.getElementById("overlayTag");
-const overlayTitle = document.getElementById("overlayTitle");
-const overlayMessage = document.getElementById("overlayMessage");
-const overlayButton = document.getElementById("overlayButton");
+const gameStage = document.getElementById("gameStage");
+const resultScreen = document.getElementById("resultScreen");
+const resultTag = document.getElementById("resultTag");
+const resultTitle = document.getElementById("resultTitle");
+const resultMessage = document.getElementById("resultMessage");
+const resultPrimaryButton = document.getElementById("resultPrimaryButton");
+const resultSecondaryButton = document.getElementById("resultSecondaryButton");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
-const BEST_LEVEL_KEY = "geometry-dash-best-level";
 const LEVEL_PROGRESS_KEY = "geometry-dash-level-progress";
 
 const levels = [
@@ -119,18 +122,15 @@ let animationFrameId = null;
 let audioContext = null;
 let isMuted = false;
 let highScore = readScore(HIGH_SCORE_KEY);
-let bestLevelReached = readScore(BEST_LEVEL_KEY) || 1;
 let levelProgress = readLevelProgress();
 
 const state = {
+  mode: "menu",
   running: false,
   gameOver: false,
-  pendingLevelIndex: null,
   score: 0,
   totalDistance: 0,
   levelDistance: 0,
-  levelStartScore: 0,
-  levelWorldOffset: 0,
   speed: levels[0].speed,
   lastTimestamp: 0,
   nextSpawnBeat: 2,
@@ -141,6 +141,7 @@ const state = {
   shake: 0,
   playerTrail: 0,
   currentLevelIndex: 0,
+  lastLoggedProgress: -1,
   player: {
     x: 148,
     y: 0,
@@ -157,8 +158,24 @@ function currentLevel() {
   return levels[state.currentLevelIndex];
 }
 
+function getLevelStorageId(levelIndex) {
+  return `level${levelIndex + 1}`;
+}
+
+function createProgressEntry(entry = {}) {
+  return {
+    bestPercent: Math.max(0, Math.min(100, Number(entry.bestPercent) || 0)),
+    completed: Boolean(entry.completed)
+  };
+}
+
+function getLevelDistanceTarget() {
+  return currentLevel().lengthBeats * getPixelsPerBeat();
+}
+
 function getCurrentProgressPercent() {
-  return Math.min(100, Math.floor((state.levelDistance / getLevelDistanceTarget()) * 100));
+  const targetDistance = Math.max(1, getLevelDistanceTarget());
+  return Math.min(100, Math.floor((state.levelDistance / targetDistance) * 100));
 }
 
 function readScore(key) {
@@ -180,23 +197,27 @@ function writeScore(key, value) {
 function readLevelProgress() {
   try {
     const raw = localStorage.getItem(LEVEL_PROGRESS_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : {};
 
     return levels.map((_, index) => {
-      const entry = parsed[index] || {};
-      return {
-        bestPercent: Math.max(0, Math.min(100, Number(entry.bestPercent) || 0)),
-        completed: Boolean(entry.completed)
-      };
+      const legacyEntry = Array.isArray(parsed) ? parsed[index] : null;
+      const objectEntry = !Array.isArray(parsed) ? parsed[getLevelStorageId(index)] : null;
+      return createProgressEntry(objectEntry || legacyEntry || {});
     });
   } catch (error) {
-    return levels.map(() => ({ bestPercent: 0, completed: false }));
+    return levels.map(() => createProgressEntry());
   }
 }
 
 function writeLevelProgress() {
   try {
-    localStorage.setItem(LEVEL_PROGRESS_KEY, JSON.stringify(levelProgress));
+    const payload = {};
+
+    levels.forEach((_, index) => {
+      payload[getLevelStorageId(index)] = levelProgress[index];
+    });
+
+    localStorage.setItem(LEVEL_PROGRESS_KEY, JSON.stringify(payload));
   } catch (error) {
     // Ignore storage failures so gameplay still works.
   }
@@ -205,14 +226,27 @@ function writeLevelProgress() {
 function saveLevelProgress(levelIndex, percent) {
   const normalizedPercent = Math.max(0, Math.min(100, Math.floor(percent)));
   const entry = levelProgress[levelIndex];
+  const previousBest = entry.bestPercent;
 
-  entry.bestPercent = Math.max(entry.bestPercent, normalizedPercent);
+  if (normalizedPercent > entry.bestPercent) {
+    entry.bestPercent = normalizedPercent;
+  }
 
   if (normalizedPercent >= 100) {
     entry.completed = true;
   }
 
   writeLevelProgress();
+
+  console.debug("[Neon Cube] Save progress", {
+    level: getLevelStorageId(levelIndex),
+    percent: normalizedPercent,
+    previousBest,
+    savedBest: entry.bestPercent,
+    completed: entry.completed
+  });
+
+  return entry;
 }
 
 function ensureAudio() {
@@ -278,10 +312,6 @@ function getPixelsPerBeat() {
   return currentLevel().speed * (currentLevel().beatMs / (1000 / 60));
 }
 
-function getLevelDistanceTarget() {
-  return currentLevel().lengthBeats * getPixelsPerBeat();
-}
-
 function updateStats() {
   const progress = getCurrentProgressPercent();
 
@@ -306,16 +336,29 @@ function updateStats() {
   });
 }
 
-function showOverlay(tag, title, message, buttonLabel) {
-  overlayTag.textContent = tag;
-  overlayTitle.textContent = title;
-  overlayMessage.textContent = message;
-  overlayButton.textContent = buttonLabel;
-  overlay.classList.remove("hidden");
+function setMode(mode) {
+  state.mode = mode;
+  state.running = mode === "playing";
+  state.gameOver = mode === "gameOver";
+
+  levelMenu.classList.toggle("hidden", mode !== "menu");
+  gameStage.classList.toggle("hidden", mode !== "playing");
+  resultScreen.classList.toggle(
+    "hidden",
+    mode !== "gameOver" && mode !== "levelComplete"
+  );
+  restartButton.classList.toggle("hidden", mode !== "playing");
+  menuButton.classList.toggle("hidden", mode === "menu");
 }
 
-function hideOverlay() {
-  overlay.classList.add("hidden");
+function configureResultScreen(configOptions) {
+  resultTag.textContent = configOptions.tag;
+  resultTitle.textContent = configOptions.title;
+  resultMessage.textContent = configOptions.message;
+  resultPrimaryButton.textContent = configOptions.primaryLabel;
+  resultSecondaryButton.textContent = configOptions.secondaryLabel || "Back to Level Select";
+  resultPrimaryButton.dataset.action = configOptions.primaryAction;
+  resultSecondaryButton.dataset.action = configOptions.secondaryAction || "menu";
 }
 
 function resetPlayer() {
@@ -364,15 +407,12 @@ function applyLevelTheme() {
   document.documentElement.style.setProperty("--progress", level.accent);
 }
 
-function loadLevel(levelIndex, showOverlayPanel = true) {
+function prepareLevel(levelIndex) {
   state.currentLevelIndex = levelIndex;
-  state.running = false;
-  state.gameOver = false;
-  state.pendingLevelIndex = null;
-  state.speed = currentLevel().speed;
+  state.score = 0;
+  state.totalDistance = 0;
   state.levelDistance = 0;
-  state.levelStartScore = state.score;
-  state.levelWorldOffset = state.totalDistance;
+  state.speed = currentLevel().speed;
   state.lastTimestamp = 0;
   state.nextSpawnBeat = currentLevel().startBeats;
   state.beatClock = 0;
@@ -380,6 +420,7 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   state.flashAlpha = 0;
   state.shake = 0;
   state.playerTrail = 0;
+  state.lastLoggedProgress = -1;
   state.obstacles = [];
   state.particles = [];
   state.pulse = 0;
@@ -387,130 +428,84 @@ function loadLevel(levelIndex, showOverlayPanel = true) {
   applyLevelTheme();
   updateStats();
   draw();
-
-  if (showOverlayPanel) {
-    const savedProgress = levelProgress[levelIndex];
-    const bestText = savedProgress.completed ? "Completed" : `Best: ${savedProgress.bestPercent}%`;
-    const tag = levelProgress[levelIndex].completed ? "Completed" : "Tap To Start";
-
-    showOverlay(
-      tag,
-      currentLevel().name,
-      `Level ${levelIndex + 1}. ${bestText}. Tap, click, or press space to start.`,
-      "Start"
-    );
-  } else {
-    hideOverlay();
-  }
 }
 
-function chooseLevel(levelIndex) {
-  state.score = 0;
-  state.totalDistance = 0;
-  loadLevel(levelIndex, true);
+function showMenu(levelIndex = state.currentLevelIndex) {
+  prepareLevel(levelIndex);
+  configureResultScreen({
+    tag: "Level Select",
+    title: currentLevel().name,
+    message: "Choose a level to start playing.",
+    primaryLabel: "Start Level",
+    primaryAction: "start",
+    secondaryLabel: "Back to Arcade",
+    secondaryAction: "arcade"
+  });
+  setMode("menu");
 }
 
-function resetRun() {
-  state.score = 0;
-  state.totalDistance = 0;
-  loadLevel(0, true);
-}
-
-function restartCurrentLevelAndJump() {
-  saveLevelProgress(state.currentLevelIndex, getCurrentProgressPercent());
-  state.score = state.levelStartScore;
-  state.totalDistance = state.levelWorldOffset;
-  loadLevel(state.currentLevelIndex, false);
-  startGame();
-  triggerJump();
-}
-
-function startGame() {
-  if (state.pendingLevelIndex !== null) {
-    const nextLevelIndex = state.pendingLevelIndex;
-    loadLevel(nextLevelIndex, false);
-  }
-
-  if (state.running) {
-    return;
-  }
-
+function startLevel(levelIndex) {
+  prepareLevel(levelIndex);
   ensureAudio();
-  state.running = true;
-  state.gameOver = false;
-  state.lastTimestamp = 0;
-  hideOverlay();
+  setMode("playing");
+
+  console.debug("[Neon Cube] Start level", {
+    level: getLevelStorageId(levelIndex),
+    name: currentLevel().name
+  });
 }
 
-function triggerJump() {
-  state.player.velocityY = config.jumpForce;
-  state.player.grounded = false;
-  state.player.rotation = -0.28;
-  state.playerTrail = 1;
-  spawnJumpParticles();
-}
-
-function handleJumpInput() {
-  if (state.gameOver) {
-    restartCurrentLevelAndJump();
-    return;
-  }
-
-  if (!state.running) {
-    startGame();
-    triggerJump();
-    return;
-  }
-
-  if (!state.player.grounded) {
-    return;
-  }
-
-  triggerJump();
+function restartCurrentLevel() {
+  console.debug("[Neon Cube] Restart level", {
+    level: getLevelStorageId(state.currentLevelIndex)
+  });
+  startLevel(state.currentLevelIndex);
 }
 
 function completeLevel() {
-  const nextIndex = state.currentLevelIndex + 1;
-  const finalScore = state.score;
-  state.running = false;
-  saveLevelProgress(state.currentLevelIndex, 100);
+  const completedPercent = 100;
+  const nextLevelIndex = state.currentLevelIndex + 1;
+  const hasNextLevel = nextLevelIndex < levels.length;
+
+  console.debug("[Neon Cube] Level completion trigger", {
+    level: getLevelStorageId(state.currentLevelIndex),
+    percent: completedPercent,
+    distance: state.levelDistance,
+    targetDistance: getLevelDistanceTarget()
+  });
+
+  setMode("levelComplete");
+  saveLevelProgress(state.currentLevelIndex, completedPercent);
 
   if (state.score > highScore) {
     highScore = state.score;
     writeScore(HIGH_SCORE_KEY, highScore);
   }
 
-  if (nextIndex >= levels.length) {
-    state.score = 0;
-    state.totalDistance = 0;
-    loadLevel(0, false);
-    updateStats();
-    showOverlay(
-      "Level Complete",
-      `${currentLevel().name} Complete`,
-      `100% complete. Final score: ${finalScore}. Tap to play again.`,
-      "Play Again"
-    );
-    return;
-  }
-
-  bestLevelReached = Math.max(bestLevelReached, nextIndex + 1);
-  writeScore(BEST_LEVEL_KEY, bestLevelReached);
-  state.pendingLevelIndex = nextIndex;
   updateStats();
-  showOverlay(
-    "Level Complete",
-    `${currentLevel().name} Complete`,
-    `100% complete. Next up: ${levels[nextIndex].name}.`,
-    "Next Level"
-  );
+  configureResultScreen({
+    tag: "Level Complete",
+    title: "100%",
+    message: hasNextLevel
+      ? `${currentLevel().name} complete. Ready for ${levels[nextLevelIndex].name}?`
+      : `${currentLevel().name} complete. You cleared the final level.`,
+    primaryLabel: hasNextLevel ? "Next Level" : "Replay Level",
+    primaryAction: hasNextLevel ? "next" : "replay",
+    secondaryLabel: "Back to Level Select",
+    secondaryAction: "menu"
+  });
 }
 
 function endGame() {
-  state.running = false;
-  state.gameOver = true;
   const reachedPercent = getCurrentProgressPercent();
-  saveLevelProgress(state.currentLevelIndex, reachedPercent);
+  const savedEntry = saveLevelProgress(state.currentLevelIndex, reachedPercent);
+
+  console.debug("[Neon Cube] Game over", {
+    level: getLevelStorageId(state.currentLevelIndex),
+    reachedPercent,
+    bestPercent: savedEntry.bestPercent
+  });
+
   state.flashAlpha = 0.55;
   state.shake = 16;
   spawnCollisionParticles();
@@ -521,20 +516,23 @@ function endGame() {
   }
 
   updateStats();
-  showOverlay(
-    "Game Over",
-    "Tap To Retry",
-    `You reached ${reachedPercent}% on ${currentLevel().name}. Tap to retry instantly.`,
-    "Retry"
-  );
+  configureResultScreen({
+    tag: "Game Over",
+    title: `You reached ${reachedPercent}%`,
+    message: `Best: ${savedEntry.bestPercent}% on ${currentLevel().name}.`,
+    primaryLabel: "Restart Level",
+    primaryAction: "restart",
+    secondaryLabel: "Back to Level Select",
+    secondaryAction: "menu"
+  });
+  setMode("gameOver");
 }
 
 function queuePatternIfNeeded() {
   const cameraAnchor = state.totalDistance + state.player.x - 120;
   const pixelsPerBeat = getPixelsPerBeat();
-  const levelOrigin = state.levelWorldOffset;
 
-  while (levelOrigin + state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
+  while (state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
     const patterns = currentLevel().patterns;
     const pattern = patterns[state.beatIndex % patterns.length];
     let cursorBeat = state.nextSpawnBeat;
@@ -542,7 +540,7 @@ function queuePatternIfNeeded() {
     pattern.forEach((piece) => {
       state.obstacles.push({
         type: piece.type,
-        x: levelOrigin + cursorBeat * pixelsPerBeat,
+        x: cursorBeat * pixelsPerBeat,
         width: piece.width,
         height: piece.height
       });
@@ -574,7 +572,7 @@ function updatePlayer(deltaFactor) {
 function updateLevelProgress(deltaFactor) {
   state.totalDistance += state.speed * deltaFactor;
   state.levelDistance += state.speed * deltaFactor;
-  state.score = state.levelStartScore + Math.floor(state.levelDistance / 12);
+  state.score = Math.floor(state.levelDistance / 12);
   state.speed += currentLevel().speedRamp * deltaFactor;
 
   const beatMs = currentLevel().beatMs;
@@ -596,8 +594,23 @@ function updateLevelProgress(deltaFactor) {
 
   queuePatternIfNeeded();
 
+  const progress = getCurrentProgressPercent();
+  if (
+    progress !== state.lastLoggedProgress &&
+    (progress % 25 === 0 || progress >= 95)
+  ) {
+    console.debug("[Neon Cube] Progress calculation", {
+      level: getLevelStorageId(state.currentLevelIndex),
+      progress,
+      distance: Math.floor(state.levelDistance),
+      targetDistance: Math.floor(getLevelDistanceTarget())
+    });
+  }
+  state.lastLoggedProgress = progress;
+
   if (state.levelDistance >= getLevelDistanceTarget()) {
     completeLevel();
+    return;
   }
 
   updateStats();
@@ -842,13 +855,61 @@ function gameLoop(timestamp) {
   animationFrameId = window.requestAnimationFrame(gameLoop);
 }
 
+function triggerJump() {
+  state.player.velocityY = config.jumpForce;
+  state.player.grounded = false;
+  state.player.rotation = -0.28;
+  state.playerTrail = 1;
+  spawnJumpParticles();
+}
+
 function handlePointerInput(event) {
+  if (state.mode !== "playing") {
+    return;
+  }
+
   if (event.target.closest("button")) {
     return;
   }
 
   event.preventDefault();
-  handleJumpInput();
+
+  if (!state.player.grounded) {
+    return;
+  }
+
+  triggerJump();
+}
+
+function handleResultPrimaryAction() {
+  const action = resultPrimaryButton.dataset.action;
+
+  if (action === "restart" || action === "replay") {
+    restartCurrentLevel();
+    return;
+  }
+
+  if (action === "next") {
+    startLevel(Math.min(state.currentLevelIndex + 1, levels.length - 1));
+    return;
+  }
+
+  if (action === "start") {
+    startLevel(state.currentLevelIndex);
+  }
+}
+
+function handleResultSecondaryAction() {
+  const action = resultSecondaryButton.dataset.action;
+
+  if (action === "menu") {
+    showMenu(state.currentLevelIndex);
+    return;
+  }
+
+  if (action === "arcade") {
+    window.location.href = "../../index.html";
+  }
 }
 
 function handleKeyboardInput(event) {
@@ -857,13 +918,25 @@ function handleKeyboardInput(event) {
   }
 
   event.preventDefault();
-  handleJumpInput();
+
+  if (state.mode === "playing") {
+    if (state.player.grounded) {
+      triggerJump();
+    }
+    return;
+  }
+
+  if (state.mode === "gameOver" || state.mode === "levelComplete") {
+    handleResultPrimaryAction();
+  }
 }
 
 restartButton.addEventListener("click", () => {
-  state.score = state.levelStartScore;
-  state.totalDistance = state.levelWorldOffset;
-  loadLevel(state.currentLevelIndex, true);
+  restartCurrentLevel();
+});
+
+menuButton.addEventListener("click", () => {
+  showMenu(state.currentLevelIndex);
 });
 
 muteButton.addEventListener("click", () => {
@@ -873,17 +946,25 @@ muteButton.addEventListener("click", () => {
 
 levelButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    chooseLevel(Number(button.dataset.levelIndex));
+    if (state.mode !== "menu") {
+      return;
+    }
+
+    startLevel(Number(button.dataset.levelIndex));
   });
 });
 
-overlayButton.addEventListener("click", () => {
-  handleJumpInput();
+resultPrimaryButton.addEventListener("click", () => {
+  handleResultPrimaryAction();
+});
+
+resultSecondaryButton.addEventListener("click", () => {
+  handleResultSecondaryAction();
 });
 
 canvas.addEventListener("pointerdown", handlePointerInput);
 document.addEventListener("keydown", handleKeyboardInput);
 
 updateMuteButton();
-loadLevel(0, true);
+showMenu(0);
 animationFrameId = window.requestAnimationFrame(gameLoop);

@@ -44,9 +44,10 @@ progressElements.forEach((element) => {
   try {
     const rawProgress = localStorage.getItem("geometry-dash-level-progress");
     const parsed = rawProgress ? JSON.parse(rawProgress) : [];
+    const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
     const completed =
-      parsed.length > 0 && parsed.every((entry) => entry && entry.completed);
-    const bestPercent = parsed.reduce((best, entry) => {
+      entries.length > 0 && entries.every((entry) => entry && entry.completed);
+    const bestPercent = entries.reduce((best, entry) => {
       return Math.max(best, Number(entry?.bestPercent) || 0);
     }, 0);
 

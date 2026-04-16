@@ -151,6 +151,10 @@ h1 {
   border-color: rgba(255, 77, 154, 0.28);
 }
 
+.hidden {
+  display: none !important;
+}
+
 .status-bar {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -204,13 +208,43 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+.level-menu {
   margin-bottom: 1rem;
+  padding: 1.1rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.level-menu-header {
+  margin-bottom: 1rem;
+}
+
+.level-menu-label {
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.level-menu-header h2 {
+  margin-top: 0.45rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.level-menu-copy {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .level-button {
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  padding: 0.7rem 0.95rem;
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   font: inherit;
@@ -236,7 +270,22 @@ h1 {
 }
 
 .level-button-name {
+  display: block;
   text-align: left;
+  font-size: 1rem;
+}
+
+.level-button-copy {
+  display: block;
+}
+
+.level-button-label {
+  display: block;
+  margin-bottom: 0.28rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
 }
 
 .level-button-status {
@@ -267,22 +316,13 @@ canvas {
   touch-action: manipulation;
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  border-radius: 24px;
-  background: rgba(4, 8, 16, 0.62);
+.result-screen {
+  margin-top: 1rem;
 }
 
-.overlay.hidden {
-  display: none;
-}
-
-.overlay-card {
+.result-card {
   width: min(100%, 360px);
+  margin: 0 auto;
   padding: 1.4rem;
   border-radius: 22px;
   text-align: center;
@@ -298,7 +338,7 @@ canvas {
   font-size: 0.78rem;
 }
 
-.overlay-card h2 {
+.result-card h2 {
   margin-top: 0.7rem;
 }
 
@@ -308,7 +348,9 @@ canvas {
   line-height: 1.6;
 }
 
-.overlay-card .button {
+.result-actions {
+  display: grid;
+  gap: 0.75rem;
   margin-top: 1rem;
 }
 
