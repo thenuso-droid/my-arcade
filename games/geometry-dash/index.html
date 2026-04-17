@@ -20,11 +20,7 @@
 
       <section class="game-shell">
         <header class="hero">
-          <div>
-            <p class="eyebrow">Arcade Runner</p>
-            <h1>Neon Cube</h1>
-            <p class="hero-copy">Choose a course, watch your completion climb, and jump straight into the level.</p>
-          </div>
+          <h1>Neon Cube</h1>
           <div class="hero-actions">
             <button id="muteButton" class="button button-secondary" type="button">Music: On</button>
             <button id="menuButton" class="button button-secondary" type="button">Level Select</button>
@@ -32,7 +28,7 @@
           </div>
         </header>
 
-        <section id="statusBar" class="status-bar" aria-label="Game status">
+        <section id="statusBar" class="status-bar hidden" aria-label="Game status">
           <div class="stat-card">
             <span class="stat-label">Score</span>
             <strong id="scoreValue" class="stat-value">0</strong>
@@ -51,7 +47,7 @@
           </div>
         </section>
 
-        <section id="hudProgressShell" class="progress-shell" aria-label="Level progress">
+        <section id="hudProgressShell" class="progress-shell hidden" aria-label="Level progress">
           <div class="progress-track">
             <div id="progressBar" class="progress-bar"></div>
           </div>

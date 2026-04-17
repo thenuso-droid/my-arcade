@@ -388,8 +388,8 @@ function setMode(mode) {
   const showMenu = mode !== "playing";
   levelMenu.classList.toggle("hidden", !showMenu);
   gameStage.classList.toggle("hidden", mode !== "playing");
-  statusBar.classList.toggle("hidden", mode !== "playing");
-  hudProgressShell.classList.toggle("hidden", mode !== "playing");
+  statusBar.classList.add("hidden");
+  hudProgressShell.classList.add("hidden");
   restartButton.classList.toggle("hidden", mode !== "playing");
   menuButton.classList.toggle("hidden", showMenu);
 }
@@ -470,6 +470,10 @@ function selectLevel(levelIndex) {
 
   const count = levels.length;
   state.selectedLevelIndex = (levelIndex + count) % count;
+  console.debug("[Neon Cube] Select level", {
+    level: getLevelStorageId(state.selectedLevelIndex),
+    name: selectedLevel().name
+  });
   renderMenuCard();
 }
 
@@ -487,6 +491,7 @@ function startLevel(levelIndex) {
   ensureAudio();
   hideMenuBanner();
   setMode("playing");
+  gameStage.classList.remove("hidden");
 
   console.debug("[Neon Cube] Start level", {
     level: getLevelStorageId(levelIndex),
@@ -964,6 +969,10 @@ nextLevelButton.addEventListener("click", () => {
 });
 
 playLevelButton.addEventListener("click", () => {
+  console.debug("[Neon Cube] Play button click", {
+    selectedLevel: getLevelStorageId(state.selectedLevelIndex),
+    name: selectedLevel().name
+  });
   startLevel(state.selectedLevelIndex);
 });
 
