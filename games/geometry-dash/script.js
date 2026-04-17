@@ -30,13 +30,14 @@ const controlsPanel = document.querySelector(".controls-panel");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
 const LEVEL_PROGRESS_KEY = "geometry-dash-level-progress";
+const BPM = 120;
+const BEAT_DURATION_MS = (60 / BPM) * 1000;
 
 const levels = [
   {
     name: "Stereo Madness",
     speed: 5.9,
     speedRamp: 0.00018,
-    beatMs: 520,
     lengthBeats: 36,
     startBeats: 3,
     backgroundTop: "#0c1e37",
@@ -58,7 +59,6 @@ const levels = [
     name: "Back On Track",
     speed: 6.8,
     speedRamp: 0.00025,
-    beatMs: 470,
     lengthBeats: 40,
     startBeats: 3,
     backgroundTop: "#191238",
@@ -87,7 +87,6 @@ const levels = [
     name: "Polargeist",
     speed: 7.6,
     speedRamp: 0.00032,
-    beatMs: 430,
     lengthBeats: 44,
     startBeats: 4,
     backgroundTop: "#122d28",
@@ -117,9 +116,9 @@ const levels = [
 ];
 
 const config = {
-  gravity: 1.08,
-  fallGravity: 1.42,
-  jumpForce: -15.6,
+  gravity: 1.22,
+  fallGravity: 1.78,
+  jumpForce: -16.6,
   groundHeight: 72,
   pulseSpeed: 0.055,
   shakeDecay: 0.84,
@@ -145,6 +144,7 @@ const state = {
   beatClock: 0,
   beatIndex: 0,
   pulse: 0,
+  beatPulse: 0,
   flashAlpha: 0,
   shake: 0,
   playerTrail: 0,
@@ -185,6 +185,10 @@ function createProgressEntry(entry = {}) {
 
 function getLevelDistanceTarget() {
   return currentLevel().lengthBeats * getPixelsPerBeat();
+}
+
+function getBeatDurationMs() {
+  return BEAT_DURATION_MS;
 }
 
 function getCurrentProgressPercent() {
@@ -316,6 +320,13 @@ function playBeat() {
 
   playTone(kick, 0.12, 0.05, "sine");
   playTone(note, 0.16, 0.028, state.beatIndex % 2 === 0 ? "triangle" : "square");
+  state.beatPulse = 1;
+
+  console.debug("[Neon Cube] Beat tick", {
+    beat: state.beatIndex,
+    bpm: BPM,
+    beatDurationMs: getBeatDurationMs()
+  });
 }
 
 function getGroundY() {
@@ -323,7 +334,7 @@ function getGroundY() {
 }
 
 function getPixelsPerBeat() {
-  return currentLevel().speed * (currentLevel().beatMs / (1000 / 60));
+  return currentLevel().speed * (getBeatDurationMs() / (1000 / 60));
 }
 
 function updateHudStats() {
@@ -479,6 +490,7 @@ function prepareLevel(levelIndex) {
   state.beatClock = 0;
   state.beatIndex = 0;
   state.flashAlpha = 0;
+  state.beatPulse = 0;
   state.shake = 0;
   state.playerTrail = 0;
   state.lastLoggedProgress = -1;
@@ -522,10 +534,13 @@ function startLevel(levelIndex) {
   hideMenuBanner();
   setMode("playing");
   gameStage.classList.remove("hidden");
+  playBeat();
 
   console.debug("[Neon Cube] Start level", {
     level: getLevelStorageId(levelIndex),
-    name: currentLevel().name
+    name: currentLevel().name,
+    bpm: BPM,
+    beatDurationMs: getBeatDurationMs()
   });
 }
 
@@ -646,17 +661,16 @@ function updatePlayer(deltaFactor) {
   }
 }
 
-function updateLevelProgress(deltaFactor) {
+function updateLevelProgress(deltaFactor, deltaMs) {
   state.totalDistance += state.speed * deltaFactor;
   state.levelDistance += state.speed * deltaFactor;
   state.score = Math.floor(state.levelDistance / 12);
   state.speed += currentLevel().speedRamp * deltaFactor;
 
-  const beatMs = currentLevel().beatMs;
-  state.beatClock += (1000 / 60) * deltaFactor;
+  state.beatClock += deltaMs;
 
-  while (state.beatClock >= beatMs) {
-    state.beatClock -= beatMs;
+  while (state.beatClock >= getBeatDurationMs()) {
+    state.beatClock -= getBeatDurationMs();
     state.beatIndex += 1;
     playBeat();
   }
@@ -685,6 +699,14 @@ function updateLevelProgress(deltaFactor) {
   }
   state.lastLoggedProgress = progress;
 
+  if (state.beatIndex > 0 && state.beatIndex % 8 === 0 && state.beatClock < deltaMs + 1) {
+    console.debug("[Neon Cube] Beat sync", {
+      beat: state.beatIndex,
+      beatClockRemainderMs: Math.round(state.beatClock),
+      nextSpawnBeat: state.nextSpawnBeat
+    });
+  }
+
   if (state.levelDistance >= getLevelDistanceTarget()) {
     completeLevel();
     return;
@@ -708,7 +730,8 @@ function updateParticles(deltaFactor) {
 }
 
 function updateEffects(deltaFactor) {
-  state.pulse += config.pulseSpeed * deltaFactor;
+  state.pulse += (config.pulseSpeed + state.beatPulse * 0.035) * deltaFactor;
+  state.beatPulse = Math.max(0, state.beatPulse - 0.08 * deltaFactor);
   state.flashAlpha = Math.max(0, state.flashAlpha - 0.03 * deltaFactor);
   state.shake *= Math.pow(config.shakeDecay, deltaFactor);
 
@@ -762,6 +785,7 @@ function checkCollision() {
 function drawBackground() {
   const level = currentLevel();
   const pulse = (Math.sin(state.pulse) + 1) / 2;
+  const beatGlow = state.beatPulse * 0.45;
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
   gradient.addColorStop(0, level.backgroundTop);
   gradient.addColorStop(0.52, level.backgroundBottom);
@@ -769,14 +793,17 @@ function drawBackground() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.025 + beatGlow * 0.08})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   ctx.fillStyle = level.accentSoft;
   ctx.beginPath();
-  ctx.arc(canvas.width * 0.18, canvas.height * 0.2, 120 + pulse * 16, 0, Math.PI * 2);
+  ctx.arc(canvas.width * 0.18, canvas.height * 0.2, 120 + pulse * 16 + beatGlow * 18, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = `rgba(255, 255, 255, ${0.035 + pulse * 0.025})`;
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.035 + pulse * 0.025 + beatGlow * 0.08})`;
   ctx.beginPath();
-  ctx.arc(canvas.width * 0.82, canvas.height * 0.18, 92 + pulse * 12, 0, Math.PI * 2);
+  ctx.arc(canvas.width * 0.82, canvas.height * 0.18, 92 + pulse * 12 + beatGlow * 14, 0, Math.PI * 2);
   ctx.fill();
 
   const gridOffset = -(state.totalDistance * 0.35) % 64;
@@ -805,7 +832,7 @@ function drawGround() {
   }
 
   ctx.strokeStyle = level.accent;
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 4 + state.beatPulse * 1.6;
   ctx.beginPath();
   ctx.moveTo(0, groundY);
   ctx.lineTo(canvas.width, groundY);
@@ -914,11 +941,12 @@ function gameLoop(timestamp) {
   }
 
   const deltaFactor = Math.min(2.2, (timestamp - state.lastTimestamp) / (1000 / 60));
+  const deltaMs = Math.min(36, timestamp - state.lastTimestamp);
   state.lastTimestamp = timestamp;
 
   if (state.running) {
     updatePlayer(deltaFactor);
-    updateLevelProgress(deltaFactor);
+    updateLevelProgress(deltaFactor, deltaMs);
   }
 
   updateParticles(deltaFactor);
