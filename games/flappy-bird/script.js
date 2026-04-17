@@ -325,6 +325,10 @@ function endGame() {
   triggerCollisionFeedback();
   playGameOverSound();
   showGameOverScreen();
+
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.submitScore(state.score);
+  }
 }
 
 function gameLoop(timestamp) {
@@ -376,6 +380,10 @@ function gameLoop(timestamp) {
 }
 
 function resetGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   cancelAnimationFrame(state.animationFrameId);
   syncGroundHeight();
   clearPipes();
@@ -390,6 +398,10 @@ function resetGame() {
 }
 
 function restartGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   ensureAudioReady();
   cancelAnimationFrame(state.animationFrameId);
   syncGroundHeight();
@@ -410,6 +422,10 @@ function restartGame() {
 }
 
 function startGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   ensureAudioReady();
   hideStartScreen();
   hideGameOverScreen();
@@ -466,6 +482,12 @@ restartButton.addEventListener("click", restartGame);
 gameArea.addEventListener("pointerdown", handlePointerInput);
 document.addEventListener("keydown", handleKeyboardInput);
 window.addEventListener("resize", handleResize);
+
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "Flappy Bird"
+  });
+}
 
 syncGroundHeight();
 resetBird();

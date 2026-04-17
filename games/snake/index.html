@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Harry Potter Snake</title>
+  <link rel="stylesheet" href="../../shared/leaderboard.css" />
   <style>
     :root {
       --bg-main: #05070d;
@@ -224,8 +225,28 @@
       <button class="touch-button down" type="button" data-direction="down">↓</button>
       <button class="touch-button right" type="button" data-direction="right">→</button>
     </div>
+
+    <section class="leaderboard-panel" aria-labelledby="leaderboardHeading">
+      <h2 id="leaderboardHeading">Top Players</h2>
+      <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite">Loading leaderboard...</p>
+      <div class="leaderboard-table-wrap">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardRows"></tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="../../shared/firebase-leaderboard.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

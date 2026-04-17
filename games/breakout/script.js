@@ -191,6 +191,10 @@ function resetBallAndPaddle() {
 }
 
 function restartGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   if (resumeTimeoutId) {
     window.clearTimeout(resumeTimeoutId);
     resumeTimeoutId = null;
@@ -617,6 +621,10 @@ function loseLife() {
       `Final score: ${gameState.score}. High score: ${highScore}. Catch more power-ups and try another run.`,
       "Play Again"
     );
+
+    if (window.ArcadeLeaderboard) {
+      window.ArcadeLeaderboard.submitScore(gameState.score);
+    }
     return;
   }
 
@@ -929,6 +937,12 @@ overlayButton.addEventListener("click", () => {
   }
   startGame();
 });
+
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "Breakout"
+  });
+}
 
 restartGame();
 

@@ -87,6 +87,10 @@ function updateGame() {
     updateScoreDisplay();
     drawGame();
     drawGameOver();
+
+    if (window.ArcadeLeaderboard) {
+      window.ArcadeLeaderboard.submitScore(score);
+    }
     return;
   }
 
@@ -368,4 +372,11 @@ function hitSelf(head) {
   }
 
   return false;
+}
+
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "Snake"
+  });
+  window.ArcadeLeaderboard.startRun();
 }

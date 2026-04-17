@@ -548,6 +548,10 @@ function showMenu(levelIndex = state.selectedLevelIndex) {
 }
 
 function startGame(levelIndex) {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   state.selectedLevelIndex = levelIndex;
   prepareLevel(levelIndex);
   const context = ensureAudio();
@@ -614,6 +618,10 @@ function completeLevel() {
       : `${levels[currentIndex].name} is complete. You cleared every level in Neon Cube.`,
     "complete"
   );
+
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.submitScore(state.score);
+  }
 }
 
 function endGame() {
@@ -644,6 +652,10 @@ function endGame() {
     `You reached ${reachedPercent}% on ${levels[currentIndex].name}. Best: ${savedEntry.bestPercent}%.`,
     "failed"
   );
+
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.submitScore(state.score);
+  }
 }
 
 function queuePatternIfNeeded() {
@@ -1088,6 +1100,11 @@ canvas.addEventListener("pointerdown", handlePointerInput);
 document.addEventListener("keydown", handleKeyboardInput);
 
 updateMuteButton();
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "Geometry Dash"
+  });
+}
 applyLevelTheme();
 updateHudStats();
 showMenu(0);

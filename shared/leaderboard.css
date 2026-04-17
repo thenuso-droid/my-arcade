@@ -1,0 +1,89 @@
+.leaderboard-panel {
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 24px;
+  background: rgba(10, 18, 34, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.leaderboard-panel h2,
+.leaderboard-status,
+.leaderboard-table {
+  margin: 0;
+}
+
+.leaderboard-panel h2 {
+  font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+}
+
+.leaderboard-status {
+  margin-top: 0.45rem;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.95rem;
+}
+
+.leaderboard-status[data-tone="error"] {
+  color: #ffb1a4;
+}
+
+.leaderboard-status[data-tone="ready"] {
+  color: #b8ffd2;
+}
+
+.leaderboard-status[data-tone="empty"] {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.leaderboard-table-wrap {
+  margin-top: 0.95rem;
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 280px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.82rem 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+  text-align: right;
+}
+
+.leaderboard-table th {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.leaderboard-table td {
+  font-size: 0.98rem;
+  color: #ffffff;
+}
+
+.leaderboard-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-panel {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding-block: 0.72rem;
+    font-size: 0.92rem;
+  }
+}

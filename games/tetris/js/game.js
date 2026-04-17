@@ -128,6 +128,10 @@ function createPiece(type = randomPieceType()) {
 }
 
 function resetGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   board = createBoard();
   score = 0;
   level = 1;
@@ -396,6 +400,10 @@ function endGame() {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.submitScore(score);
+  }
 }
 
 function update(time = 0) {
@@ -479,5 +487,11 @@ touchButtons.forEach((button) => {
 
 restartButton.addEventListener("click", resetGame);
 overlayRestartButton.addEventListener("click", resetGame);
+
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "Tetris"
+  });
+}
 
 resetGame();

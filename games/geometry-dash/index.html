@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="../../shared/leaderboard.css" />
   </head>
   <body>
     <main class="page-shell">
@@ -101,9 +102,29 @@
           <p><span>Desktop:</span> Press space or click to jump.</p>
           <p><span>Mobile:</span> Tap anywhere on the game area to jump.</p>
         </section>
+
+        <section class="leaderboard-panel" aria-labelledby="leaderboardHeading">
+          <h2 id="leaderboardHeading">Top Players</h2>
+          <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite">Loading leaderboard...</p>
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardRows"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="../../shared/firebase-leaderboard.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>
