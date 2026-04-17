@@ -25,6 +25,8 @@ const menuResultTag = document.getElementById("menuResultTag");
 const menuResultMessage = document.getElementById("menuResultMessage");
 const levelDots = document.querySelectorAll(".level-dot");
 const gameStage = document.getElementById("gameStage");
+const selectorCard = document.querySelector(".selector-card");
+const controlsPanel = document.querySelector(".controls-panel");
 
 const HIGH_SCORE_KEY = "geometry-dash-high-score";
 const LEVEL_PROGRESS_KEY = "geometry-dash-level-progress";
@@ -353,6 +355,31 @@ function renderMenuCard() {
   nextLevelButton.disabled = state.mode === "playing";
 }
 
+function animateSelectorCard(mode = "switch") {
+  if (!selectorCard) {
+    return;
+  }
+
+  if (mode === "enter") {
+    selectorCard.classList.remove("is-entering");
+    window.requestAnimationFrame(() => {
+      selectorCard.classList.add("is-entering");
+      window.setTimeout(() => {
+        selectorCard.classList.remove("is-entering");
+      }, 320);
+    });
+    return;
+  }
+
+  selectorCard.classList.remove("is-switching");
+  window.requestAnimationFrame(() => {
+    selectorCard.classList.add("is-switching");
+    window.setTimeout(() => {
+      selectorCard.classList.remove("is-switching");
+    }, 220);
+  });
+}
+
 function showMenuBanner(tag, message, tone) {
   state.menuMessage = { tag, message, tone };
   menuResultTag.textContent = tag;
@@ -392,6 +419,7 @@ function setMode(mode) {
   hudProgressShell.classList.add("hidden");
   restartButton.classList.toggle("hidden", mode !== "playing");
   menuButton.classList.toggle("hidden", showMenu);
+  controlsPanel.classList.toggle("hidden", showMenu);
 }
 
 function resetPlayer() {
@@ -474,6 +502,7 @@ function selectLevel(levelIndex) {
     level: getLevelStorageId(state.selectedLevelIndex),
     name: selectedLevel().name
   });
+  animateSelectorCard("switch");
   renderMenuCard();
 }
 
@@ -481,6 +510,7 @@ function showMenu(levelIndex = state.selectedLevelIndex) {
   state.selectedLevelIndex = levelIndex;
   applyLevelTheme();
   setMode("menu");
+  animateSelectorCard("enter");
   renderMenuCard();
   renderMenuMessage();
 }
