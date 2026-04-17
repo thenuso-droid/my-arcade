@@ -141,8 +141,8 @@ const state = {
   speed: levels[0].speed,
   lastTimestamp: 0,
   nextSpawnBeat: 2,
-  beatClock: 0,
   beatIndex: 0,
+  lastTriggeredBeat: -1,
   pulse: 0,
   beatPulse: 0,
   flashAlpha: 0,
@@ -151,6 +151,8 @@ const state = {
   currentLevelIndex: 0,
   selectedLevelIndex: 0,
   lastLoggedProgress: -1,
+  audioStartTime: null,
+  currentBeat: 0,
   menuMessage: null,
   player: {
     x: 148,
@@ -189,6 +191,10 @@ function getLevelDistanceTarget() {
 
 function getBeatDurationMs() {
   return BEAT_DURATION_MS;
+}
+
+function getBeatDurationSeconds() {
+  return BEAT_DURATION_MS / 1000;
 }
 
 function getCurrentProgressPercent() {
@@ -327,6 +333,18 @@ function playBeat() {
     bpm: BPM,
     beatDurationMs: getBeatDurationMs()
   });
+}
+
+function getAudioElapsedSeconds() {
+  if (!audioContext || state.audioStartTime === null) {
+    return 0;
+  }
+
+  return Math.max(0, audioContext.currentTime - state.audioStartTime);
+}
+
+function getCurrentBeatFromAudio() {
+  return getAudioElapsedSeconds() / getBeatDurationSeconds();
 }
 
 function getGroundY() {
@@ -487,8 +505,10 @@ function prepareLevel(levelIndex) {
   state.speed = currentLevel().speed;
   state.lastTimestamp = 0;
   state.nextSpawnBeat = currentLevel().startBeats;
-  state.beatClock = 0;
   state.beatIndex = 0;
+  state.lastTriggeredBeat = -1;
+  state.currentBeat = 0;
+  state.audioStartTime = null;
   state.flashAlpha = 0;
   state.beatPulse = 0;
   state.shake = 0;
@@ -527,28 +547,34 @@ function showMenu(levelIndex = state.selectedLevelIndex) {
   renderMenuMessage();
 }
 
-function startLevel(levelIndex) {
+function startGame(levelIndex) {
   state.selectedLevelIndex = levelIndex;
   prepareLevel(levelIndex);
-  ensureAudio();
+  const context = ensureAudio();
   hideMenuBanner();
   setMode("playing");
   gameStage.classList.remove("hidden");
-  playBeat();
+  state.audioStartTime = context ? context.currentTime : null;
+  state.lastTriggeredBeat = -1;
+  state.currentBeat = 0;
+  state.lastLoggedProgress = -1;
 
-  console.debug("[Neon Cube] Start level", {
+  console.debug("[Neon Cube] Start game", {
     level: getLevelStorageId(levelIndex),
     name: currentLevel().name,
     bpm: BPM,
-    beatDurationMs: getBeatDurationMs()
+    beatDurationMs: getBeatDurationMs(),
+    audioStartTime: state.audioStartTime
   });
+
+  syncToAudioClock();
 }
 
 function restartCurrentLevel() {
   console.debug("[Neon Cube] Restart level", {
     level: getLevelStorageId(state.currentLevelIndex)
   });
-  startLevel(state.currentLevelIndex);
+  startGame(state.currentLevelIndex);
 }
 
 function returnToSelectorWithMessage(levelIndex, tag, message, tone) {
@@ -644,6 +670,33 @@ function queuePatternIfNeeded() {
   }
 }
 
+function syncToAudioClock() {
+  if (!state.running) {
+    return;
+  }
+
+  state.currentBeat = getCurrentBeatFromAudio();
+  const wholeBeat = Math.floor(state.currentBeat);
+  state.beatIndex = wholeBeat;
+
+  while (state.lastTriggeredBeat < wholeBeat) {
+    state.lastTriggeredBeat += 1;
+    playBeat();
+
+    if (state.lastTriggeredBeat % 4 === 0) {
+      console.debug("[Neon Cube] Audio sync", {
+        audioTime: Number(getAudioElapsedSeconds().toFixed(3)),
+        currentBeat: Number(state.currentBeat.toFixed(3)),
+        wholeBeat: state.lastTriggeredBeat
+      });
+    }
+  }
+
+  state.levelDistance = state.currentBeat * getPixelsPerBeat();
+  state.totalDistance = state.levelDistance;
+  state.score = Math.floor(state.levelDistance / 12);
+}
+
 function updatePlayer(deltaFactor) {
   const gravity = state.player.velocityY < 0 ? config.gravity : config.fallGravity;
   state.player.velocityY += gravity * deltaFactor;
@@ -662,18 +715,7 @@ function updatePlayer(deltaFactor) {
 }
 
 function updateLevelProgress(deltaFactor, deltaMs) {
-  state.totalDistance += state.speed * deltaFactor;
-  state.levelDistance += state.speed * deltaFactor;
-  state.score = Math.floor(state.levelDistance / 12);
-  state.speed += currentLevel().speedRamp * deltaFactor;
-
-  state.beatClock += deltaMs;
-
-  while (state.beatClock >= getBeatDurationMs()) {
-    state.beatClock -= getBeatDurationMs();
-    state.beatIndex += 1;
-    playBeat();
-  }
+  syncToAudioClock();
 
   for (let index = state.obstacles.length - 1; index >= 0; index -= 1) {
     const obstacle = state.obstacles[index];
@@ -699,10 +741,12 @@ function updateLevelProgress(deltaFactor, deltaMs) {
   }
   state.lastLoggedProgress = progress;
 
-  if (state.beatIndex > 0 && state.beatIndex % 8 === 0 && state.beatClock < deltaMs + 1) {
+  const currentBeatRemainderMs = (state.currentBeat % 1) * getBeatDurationMs();
+
+  if (state.beatIndex > 0 && state.beatIndex % 8 === 0 && currentBeatRemainderMs < deltaMs + 1) {
     console.debug("[Neon Cube] Beat sync", {
       beat: state.beatIndex,
-      beatClockRemainderMs: Math.round(state.beatClock),
+      beatClockRemainderMs: Math.round(currentBeatRemainderMs),
       nextSpawnBeat: state.nextSpawnBeat
     });
   }
@@ -1001,7 +1045,7 @@ function handleKeyboardInput(event) {
   }
 
   if (state.mode !== "playing") {
-    startLevel(state.selectedLevelIndex);
+    startGame(state.selectedLevelIndex);
   }
 }
 
@@ -1031,7 +1075,7 @@ playLevelButton.addEventListener("click", () => {
     selectedLevel: getLevelStorageId(state.selectedLevelIndex),
     name: selectedLevel().name
   });
-  startLevel(state.selectedLevelIndex);
+  startGame(state.selectedLevelIndex);
 });
 
 levelDots.forEach((dot) => {
