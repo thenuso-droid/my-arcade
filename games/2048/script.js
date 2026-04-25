@@ -100,6 +100,10 @@ function renderBoard() {
 }
 
 function resetGame() {
+  if (window.ArcadeLeaderboard) {
+    window.ArcadeLeaderboard.startRun();
+  }
+
   board = createEmptyBoard();
   score = 0;
   gameOver = false;
@@ -258,6 +262,10 @@ function checkGameState() {
       "No Moves Left",
       `Final score: ${score}. High score: ${highScore}. Restart to try again.`
     );
+
+    if (window.ArcadeLeaderboard) {
+      window.ArcadeLeaderboard.submitScore(score);
+    }
   }
 }
 
@@ -314,5 +322,11 @@ continueButton.addEventListener("click", () => {
 document.addEventListener("keydown", handleKeydown);
 boardElement.addEventListener("touchstart", handleTouchStart, { passive: true });
 boardElement.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+if (window.ArcadeLeaderboard) {
+  window.ArcadeLeaderboard.configure({
+    game: "2048"
+  });
+}
 
 resetGame();
