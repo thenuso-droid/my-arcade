@@ -76,8 +76,9 @@ function setBirdPosition() {
 }
 
 function setBirdRotation() {
-  const angle = Math.max(-22, Math.min(82, state.birdVelocity * 4.8));
-  bird.style.transform = `rotate(${angle}deg)`;
+  const angle = Math.max(-28, Math.min(78, state.birdVelocity * 5.6 - 8));
+  const liftOffset = state.birdVelocity < -1 ? -2 : 0;
+  bird.style.transform = `translateY(${liftOffset}px) rotate(${angle}deg)`;
 }
 
 function ensureAudioReady() {

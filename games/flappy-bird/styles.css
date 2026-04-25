@@ -179,111 +179,168 @@ button {
   transform-origin: center;
   z-index: 3;
   will-change: transform, top;
+  transition:
+    opacity 0.35s ease,
+    top 0.05s linear,
+    transform 0.12s ease-out;
+}
+
+.bird::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 2px;
+  width: 14px;
+  height: 10px;
+  border-radius: 12px 12px 2px 2px;
+  background: linear-gradient(180deg, #ffdf69, #ffb300);
+  transform: rotate(-12deg);
+  box-shadow: -8px 2px 0 -2px rgba(255, 206, 84, 0.92);
+}
+
+.bird::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 8px;
+  bottom: 6px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(122, 73, 8, 0.18);
+  filter: blur(5px);
+  z-index: -1;
 }
 
 .bird-body {
   position: absolute;
-  inset: 4px;
-  border-radius: 54% 46% 48% 52%;
+  inset: 3px 4px 5px;
+  border-radius: 54% 46% 50% 50%;
   background:
-    radial-gradient(circle at 35% 30%, rgba(255, 248, 194, 0.95), transparent 22%),
-    linear-gradient(135deg, #ffe86f 0%, #ffbe1a 58%, #ff9b00 100%);
-  border: 2px solid rgba(118, 73, 4, 0.18);
+    radial-gradient(circle at 34% 26%, rgba(255, 252, 214, 0.98), transparent 24%),
+    radial-gradient(circle at 62% 54%, rgba(255, 175, 24, 0.22), transparent 40%),
+    linear-gradient(135deg, #ffe66c 0%, #ffc424 56%, #ff9f08 100%);
+  border: 2px solid rgba(138, 89, 8, 0.18);
   box-shadow:
-    0 10px 18px rgba(145, 87, 7, 0.28),
-    inset -6px -8px 14px rgba(222, 121, 0, 0.16);
+    0 10px 18px rgba(145, 87, 7, 0.24),
+    inset -8px -10px 16px rgba(214, 111, 0, 0.16);
 }
 
 .bird-body::before {
   content: "";
   position: absolute;
-  right: 4px;
-  top: 5px;
-  width: 12px;
-  height: 12px;
+  right: 5px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.24);
   filter: blur(1px);
 }
 
 .bird-body::after {
   content: "";
   position: absolute;
-  left: -9px;
-  top: 14px;
-  width: 12px;
-  height: 18px;
-  border-radius: 12px 6px 6px 12px;
-  background: linear-gradient(135deg, #ff8d72, #ff5c4d);
-  transform: rotate(-18deg);
+  left: -11px;
+  top: 17px;
+  width: 16px;
+  height: 15px;
+  border-radius: 16px 3px 10px 16px;
+  background: linear-gradient(135deg, #ff9f52, #ff7041);
+  transform: rotate(-20deg);
+  box-shadow: -8px 6px 0 -3px rgba(255, 145, 54, 0.9);
 }
 
 .bird-belly {
   position: absolute;
-  left: 15px;
-  top: 14px;
-  width: 24px;
+  left: 13px;
+  top: 15px;
+  width: 26px;
   height: 22px;
-  border-radius: 52% 48% 56% 44%;
-  background: linear-gradient(180deg, #fff7d6, #ffe89f);
+  border-radius: 58% 42% 52% 48%;
+  background: linear-gradient(180deg, #fff8dd, #ffe7a1);
 }
 
 .bird-eye {
   position: absolute;
-  right: 11px;
-  top: 12px;
-  width: 13px;
-  height: 13px;
+  right: 10px;
+  top: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.bird-eye::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .bird-pupil {
   position: absolute;
-  right: 14px;
+  right: 13px;
   top: 15px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #16212a;
+  background: #11212e;
 }
 
 .bird-cheek {
   position: absolute;
-  right: 8px;
-  top: 24px;
-  width: 10px;
-  height: 8px;
+  right: 7px;
+  top: 25px;
+  width: 11px;
+  height: 9px;
   border-radius: 50%;
-  background: rgba(255, 138, 92, 0.55);
+  background: rgba(255, 142, 92, 0.5);
 }
 
 .bird-beak {
   position: absolute;
-  right: -8px;
-  top: 18px;
-  width: 18px;
+  right: -7px;
+  top: 19px;
+  width: 17px;
   height: 12px;
-  background: linear-gradient(135deg, #ff9e45, #ff6f2e);
-  clip-path: polygon(0 50%, 100% 10%, 100% 90%);
+  background: linear-gradient(135deg, #ffb14f, #ff7b2f);
+  clip-path: polygon(0 52%, 100% 14%, 100% 86%);
+  border-radius: 0 10px 10px 0;
 }
 
 .bird-wing {
   position: absolute;
-  left: 9px;
+  left: 8px;
   top: 18px;
   width: 24px;
-  height: 18px;
-  border-radius: 55% 45% 55% 45%;
-  background: linear-gradient(135deg, #ffd24a, #f39b08);
-  transform-origin: 85% 50%;
-  animation: wing-flap 0.95s ease-in-out infinite;
-  box-shadow: inset -2px -3px 6px rgba(169, 94, 2, 0.16);
+  height: 20px;
+  border-radius: 65% 35% 62% 38%;
+  background: linear-gradient(135deg, #ffd969, #f39f16);
+  transform-origin: 88% 45%;
+  animation: wing-flap 0.72s ease-in-out infinite;
+  box-shadow:
+    inset -2px -3px 8px rgba(169, 94, 2, 0.16),
+    0 5px 8px rgba(191, 116, 9, 0.12);
+}
+
+.bird-wing::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 13px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 241, 187, 0.5);
 }
 
 .bird.flap-boost .bird-wing {
-  animation-duration: 0.26s;
+  animation-duration: 0.18s;
 }
 
 .game-area.shake {
@@ -449,11 +506,11 @@ button {
 @keyframes wing-flap {
   0%,
   100% {
-    transform: rotate(-12deg) translateY(0);
+    transform: rotate(-18deg) translateY(1px) scaleY(0.98);
   }
 
   50% {
-    transform: rotate(18deg) translateY(-2px);
+    transform: rotate(22deg) translateY(-3px) scaleY(1.03);
   }
 }
 

@@ -1,4 +1,6 @@
 (function () {
+  const PLAYER_NAME_KEY = "arcade-player-name";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBG5lasnMDOaGjSiVQC8EsLAmStXWj65BE",
     authDomain: "my-arcade-leaderboard.firebaseapp.com",
@@ -14,7 +16,9 @@
     allowZeroScores: false,
     submitLock: false,
     tableBody: null,
-    statusElement: null
+    statusElement: null,
+    playerNameElement: null,
+    changeNameButton: null
   };
 
   let firestore = null;
@@ -43,6 +47,22 @@
       .slice(0, 20);
   }
 
+  function readPlayerName() {
+    try {
+      return sanitizeName(window.localStorage.getItem(PLAYER_NAME_KEY) || "");
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function writePlayerName(name) {
+    try {
+      window.localStorage.setItem(PLAYER_NAME_KEY, sanitizeName(name));
+    } catch (error) {
+      // Ignore storage issues so score submission can still continue.
+    }
+  }
+
   function formatScore(score) {
     return Number(score || 0).toLocaleString();
   }
@@ -54,6 +74,94 @@
 
     state.statusElement.textContent = message;
     state.statusElement.dataset.tone = tone || "neutral";
+  }
+
+  function updatePlayerNameDisplay() {
+    if (!state.playerNameElement) {
+      return;
+    }
+
+    const savedName = readPlayerName();
+    state.playerNameElement.textContent = savedName
+      ? `Player: ${savedName}`
+      : "Player: not saved yet";
+  }
+
+  function requestPlayerName(forcePrompt) {
+    const savedName = readPlayerName();
+
+    if (savedName && !forcePrompt) {
+      return savedName;
+    }
+
+    const promptMessage = forcePrompt
+      ? "Enter a new leaderboard name:"
+      : "Enter your name for the leaderboard:";
+    const enteredName = window.prompt(promptMessage, savedName);
+
+    if (enteredName === null) {
+      return null;
+    }
+
+    const nextName = sanitizeName(enteredName);
+
+    if (!nextName) {
+      return "";
+    }
+
+    writePlayerName(nextName);
+    updatePlayerNameDisplay();
+    return nextName;
+  }
+
+  function handleChangeName() {
+    const nextName = requestPlayerName(true);
+
+    if (nextName === null) {
+      setStatus("Kept your current leaderboard name.", "neutral");
+      return;
+    }
+
+    if (!nextName) {
+      setStatus("Enter at least one character for your player name.", "error");
+      return;
+    }
+
+    setStatus(`Saved player name as ${nextName}.`, "ready");
+  }
+
+  function ensurePlayerControls() {
+    if (!state.statusElement) {
+      return;
+    }
+
+    const panel = state.statusElement.closest(".leaderboard-panel");
+    if (!panel) {
+      return;
+    }
+
+    let controls = panel.querySelector(".leaderboard-player-controls");
+
+    if (!controls) {
+      controls = document.createElement("div");
+      controls.className = "leaderboard-player-controls";
+
+      const nameElement = document.createElement("p");
+      nameElement.className = "leaderboard-player-name";
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "leaderboard-name-button";
+      button.textContent = "Change Name";
+      button.addEventListener("click", handleChangeName);
+
+      controls.append(nameElement, button);
+      state.statusElement.insertAdjacentElement("afterend", controls);
+    }
+
+    state.playerNameElement = controls.querySelector(".leaderboard-player-name");
+    state.changeNameButton = controls.querySelector(".leaderboard-name-button");
+    updatePlayerNameDisplay();
   }
 
   function renderRows(entries) {
@@ -153,20 +261,19 @@
       return false;
     }
 
-    state.submitLock = true;
+    const name = requestPlayerName(false);
 
-    const enteredName = window.prompt("Enter your name for the leaderboard:", "");
-    const name = sanitizeName(enteredName);
-
-    if (enteredName === null) {
+    if (name === null) {
       setStatus("Score not submitted this run.", "neutral");
       return false;
     }
 
     if (!name) {
-      setStatus("Enter a name next time to join the leaderboard.", "neutral");
+      setStatus("Enter a name to join the leaderboard.", "neutral");
       return false;
     }
+
+    state.submitLock = true;
 
     try {
       const db = ensureFirestore();
@@ -193,6 +300,7 @@
     state.submitLock = false;
     state.tableBody = document.getElementById(settings.rowsId || "leaderboardRows");
     state.statusElement = document.getElementById(settings.statusId || "leaderboardStatus");
+    ensurePlayerControls();
 
     loadScores();
   }
