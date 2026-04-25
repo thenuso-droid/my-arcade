@@ -92,6 +92,22 @@
       .replace(/'/g, "&#39;");
   }
 
+  function logFirebaseError(action, error) {
+    const code = error && error.code ? error.code : "unknown";
+    const message = error && error.message ? error.message : String(error);
+
+    console.group(`[ArcadeLeaderboard] ${action} failed`);
+    console.error("Firebase error object:", error);
+    console.error("Error code:", code);
+    console.error("Error message:", message);
+
+    if (error && error.stack) {
+      console.error("Stack trace:", error.stack);
+    }
+
+    console.groupEnd();
+  }
+
   async function loadScores() {
     if (!state.game) {
       return;
@@ -115,7 +131,7 @@
       const entries = snapshot.docs.map((doc) => doc.data());
       renderRows(entries);
     } catch (error) {
-      console.error("[ArcadeLeaderboard] Failed to load scores", error);
+      logFirebaseError("Load leaderboard", error);
       if (state.tableBody) {
         state.tableBody.innerHTML = "";
       }
@@ -164,7 +180,7 @@
       await loadScores();
       return true;
     } catch (error) {
-      console.error("[ArcadeLeaderboard] Failed to submit score", error);
+      logFirebaseError("Submit score", error);
       setStatus("Could not save your score right now.", "error");
       return false;
     }

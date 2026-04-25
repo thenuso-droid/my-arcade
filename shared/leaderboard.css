@@ -8,6 +8,22 @@
   backdrop-filter: blur(12px);
 }
 
+.leaderboard-hint {
+  margin-top: 1.25rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.96rem;
+  line-height: 1.5;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.leaderboard-hint strong {
+  color: #ffffff;
+}
+
 .leaderboard-panel h2,
 .leaderboard-status,
 .leaderboard-table {
@@ -76,6 +92,12 @@
 }
 
 @media (max-width: 640px) {
+  .leaderboard-hint {
+    padding: 0.9rem 0.95rem;
+    font-size: 0.92rem;
+    border-radius: 16px;
+  }
+
   .leaderboard-panel {
     padding: 1rem;
     border-radius: 20px;
