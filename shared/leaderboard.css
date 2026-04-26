@@ -1,11 +1,15 @@
 .leaderboard-panel {
   margin-top: 1.5rem;
-  padding: 1.1rem 1.15rem;
-  border-radius: 24px;
-  background: rgba(10, 18, 34, 0.66);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(12px);
+  padding: 1.2rem;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(10, 18, 34, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 22px 42px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
 }
 
 .leaderboard-hint {
@@ -24,19 +28,38 @@
   color: #ffffff;
 }
 
-.leaderboard-panel h2,
+.leaderboard-header,
+.leaderboard-player-controls,
 .leaderboard-status,
 .leaderboard-table {
   margin: 0;
 }
 
+.leaderboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
 .leaderboard-panel h2 {
   font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+  color: #ffffff;
+}
+
+.leaderboard-subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
 }
 
 .leaderboard-status {
-  margin-top: 0.45rem;
-  color: rgba(255, 255, 255, 0.74);
+  margin-top: 0.95rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.84);
   font-size: 0.95rem;
 }
 
@@ -54,7 +77,7 @@
 
 .leaderboard-player-name {
   margin: 0;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 0.94rem;
   line-height: 1.4;
 }
@@ -84,20 +107,23 @@
 }
 
 .leaderboard-status[data-tone="error"] {
-  color: #ffb1a4;
+  color: #ffd1c5;
 }
 
 .leaderboard-status[data-tone="ready"] {
-  color: #b8ffd2;
+  color: #cdffe0;
 }
 
 .leaderboard-status[data-tone="empty"] {
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .leaderboard-table-wrap {
-  margin-top: 0.95rem;
+  margin-top: 1rem;
   overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 10, 22, 0.42);
 }
 
 .leaderboard-table {
@@ -108,7 +134,7 @@
 
 .leaderboard-table th,
 .leaderboard-table td {
-  padding: 0.82rem 0.4rem;
+  padding: 0.92rem 0.75rem;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
 }
@@ -122,16 +148,21 @@
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .leaderboard-table td {
   font-size: 0.98rem;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .leaderboard-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.leaderboard-table tbody tr:nth-child(odd) td {
+  background: rgba(255, 255, 255, 0.015);
 }
 
 @media (max-width: 640px) {
@@ -157,7 +188,7 @@
 
   .leaderboard-table th,
   .leaderboard-table td {
-    padding-block: 0.72rem;
+    padding: 0.78rem 0.62rem;
     font-size: 0.92rem;
   }
 }

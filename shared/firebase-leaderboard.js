@@ -97,8 +97,8 @@
 
     const savedName = readPlayerName();
     state.playerNameElement.textContent = savedName
-      ? `Player: ${savedName}`
-      : "Player: not saved yet";
+      ? `Playing as: ${savedName}`
+      : "Playing as: Guest";
   }
 
   function requestPlayerName(forcePrompt) {
@@ -185,7 +185,7 @@
 
     if (!entries.length) {
       state.tableBody.innerHTML = "";
-      setStatus("No scores yet", "empty");
+      setStatus("No scores yet — be the first!", "empty");
       return;
     }
 
@@ -257,7 +257,7 @@
       if (state.tableBody) {
         state.tableBody.innerHTML = "";
       }
-      setStatus("Leaderboard unavailable right now. Please try again later.", "error");
+      setStatus("Leaderboard unavailable right now.", "error");
     }
   }
 
