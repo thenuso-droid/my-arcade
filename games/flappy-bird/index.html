@@ -39,17 +39,37 @@
         >
           <div class="sky-glow"></div>
           <div id="bird" class="bird" aria-hidden="true">
-            <div class="bird-body">
-              <div class="bird-crest"></div>
-              <div class="bird-tail"></div>
-              <div class="bird-wing bird-wing-back"></div>
-              <div class="bird-belly"></div>
-              <div class="bird-eye"></div>
-              <div class="bird-pupil"></div>
-              <div class="bird-cheek"></div>
-              <div class="bird-beak"></div>
-              <div class="bird-wing bird-wing-front"></div>
-            </div>
+            <svg
+              class="bird-svg"
+              viewBox="0 0 84 84"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <g class="bird-tail-group">
+                <path
+                  class="bird-outline bird-tail-shape"
+                  d="M17 43L4 36L8 48L3 60L18 53Z"
+                />
+              </g>
+              <g class="bird-wing-group">
+                <path
+                  class="bird-outline bird-wing-shape"
+                  d="M36 42C27 34 23 47 24 55C25 63 35 67 45 61C51 57 51 47 36 42Z"
+                />
+              </g>
+              <circle class="bird-outline bird-body-shape" cx="44" cy="42" r="24" />
+              <path
+                class="bird-outline bird-belly-shape"
+                d="M29 50C32 60 45 66 56 60C58 49 55 44 49 40C39 39 33 42 29 50Z"
+              />
+              <path
+                class="bird-outline bird-beak-shape"
+                d="M62 42L78 36L78 49L62 46Z"
+              />
+              <circle class="bird-outline bird-eye-shape" cx="52" cy="33" r="8" />
+              <circle class="bird-pupil-shape" cx="54" cy="34" r="3.5" />
+              <circle class="bird-cheek-shape" cx="56" cy="46" r="4.5" />
+            </svg>
           </div>
           <div id="pipe-layer" class="pipe-layer" aria-hidden="true"></div>
           <div class="ground" aria-hidden="true"></div>

@@ -1,5 +1,6 @@
 (function () {
-  const PLAYER_NAME_KEY = "arcade-player-name";
+  const PLAYER_NAME_KEY = "arcadePlayerName";
+  const LEGACY_PLAYER_NAME_KEY = "arcade-player-name";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBG5lasnMDOaGjSiVQC8EsLAmStXWj65BE",
@@ -49,7 +50,20 @@
 
   function readPlayerName() {
     try {
-      return sanitizeName(window.localStorage.getItem(PLAYER_NAME_KEY) || "");
+      const currentName = sanitizeName(window.localStorage.getItem(PLAYER_NAME_KEY) || "");
+
+      if (currentName) {
+        return currentName;
+      }
+
+      const legacyName = sanitizeName(window.localStorage.getItem(LEGACY_PLAYER_NAME_KEY) || "");
+
+      if (legacyName) {
+        window.localStorage.setItem(PLAYER_NAME_KEY, legacyName);
+        window.localStorage.removeItem(LEGACY_PLAYER_NAME_KEY);
+      }
+
+      return legacyName;
     } catch (error) {
       return "";
     }
