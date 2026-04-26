@@ -291,13 +291,74 @@
 
     try {
       const db = ensureFirestore();
-      await db.collection("leaderboards").add({
-        game: state.game,
-        name,
-        score: finalScore,
-        timestamp: Date.now()
-      });
-      setStatus("Score submitted. Refreshing Top 10...", "ready");
+      const existingScores = await db
+        .collection("leaderboards")
+        .where("game", "==", state.game)
+        .where("name", "==", name)
+        .get();
+
+      const now = Date.now();
+      let statusMessage = "Score submitted. Refreshing Top 10...";
+
+      if (existingScores.empty) {
+        await db.collection("leaderboards").add({
+          game: state.game,
+          name,
+          score: finalScore,
+          timestamp: now
+        });
+      } else {
+        let primaryDoc = existingScores.docs[0];
+        let bestSavedScore = Number(primaryDoc.data().score || 0);
+        let bestSavedTimestamp = Number(primaryDoc.data().timestamp || 0);
+
+        existingScores.docs.forEach((doc) => {
+          const data = doc.data();
+          const savedScore = Number(data.score || 0);
+          const savedTimestamp = Number(data.timestamp || 0);
+
+          if (
+            savedScore > bestSavedScore ||
+            (savedScore === bestSavedScore && savedTimestamp > bestSavedTimestamp)
+          ) {
+            primaryDoc = doc;
+            bestSavedScore = savedScore;
+            bestSavedTimestamp = savedTimestamp;
+          }
+        });
+
+        const duplicateDocs = existingScores.docs.filter((doc) => doc.id !== primaryDoc.id);
+
+        if (finalScore > bestSavedScore || duplicateDocs.length > 0) {
+          const batch = db.batch();
+
+          if (finalScore > bestSavedScore) {
+            batch.set(
+              primaryDoc.ref,
+              {
+                game: state.game,
+                name,
+                score: finalScore,
+                timestamp: now
+              },
+              { merge: true }
+            );
+            statusMessage = "New best score saved. Refreshing Top 10...";
+          } else {
+            statusMessage = "Best score already saved. Refreshing Top 10...";
+          }
+
+          duplicateDocs.forEach((doc) => {
+            batch.delete(doc.ref);
+          });
+
+          await batch.commit();
+        } else {
+          statusMessage = "Best score already saved. Refreshing Top 10...";
+        }
+      }
+
+      setStatus(statusMessage, "ready");
       await loadScores();
       return true;
     } catch (error) {
