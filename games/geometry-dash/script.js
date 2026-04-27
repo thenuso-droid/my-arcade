@@ -1060,26 +1060,24 @@ function drawPlayer() {
   if (state.playerTrail > 0) {
     ctx.save();
     ctx.globalAlpha = state.playerTrail * 0.35;
-    ctx.fillStyle = currentLevel().accent;
+    ctx.fillStyle = "rgba(255, 213, 74, 0.38)";
     ctx.fillRect(state.player.x - 18, state.player.y + 6, 14, state.player.size - 12);
     ctx.restore();
   }
 
+  const halfSize = state.player.size / 2;
+
   ctx.save();
-  ctx.translate(state.player.x + state.player.size / 2, state.player.y + state.player.size / 2);
+  ctx.translate(state.player.x + halfSize, state.player.y + halfSize);
   ctx.rotate(state.player.rotation);
-  ctx.shadowColor = `${currentLevel().accent}aa`;
-  ctx.shadowBlur = 18;
-  ctx.fillStyle = "#ffe44d";
-  ctx.fillRect(-state.player.size / 2, -state.player.size / 2, state.player.size, state.player.size);
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#10213a";
-  ctx.strokeRect(-state.player.size / 2, -state.player.size / 2, state.player.size, state.player.size);
+  ctx.shadowColor = "rgba(255, 213, 74, 0.58)";
+  ctx.shadowBlur = 16;
+  ctx.fillStyle = "#ffd54a";
+  ctx.fillRect(-halfSize, -halfSize, state.player.size, state.player.size);
   ctx.shadowBlur = 0;
-  ctx.fillStyle = "#10213a";
-  ctx.fillRect(-state.player.size / 2 + 7, -state.player.size / 2 + 7, state.player.size - 14, 5);
-  ctx.fillRect(-state.player.size / 2 + 7, state.player.size / 2 - 12, state.player.size - 14, 5);
-  ctx.fillRect(-4, -4, 8, 8);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#1a1a1a";
+  ctx.strokeRect(-halfSize, -halfSize, state.player.size, state.player.size);
   ctx.restore();
 }
 
