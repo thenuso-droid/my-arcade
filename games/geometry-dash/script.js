@@ -48,22 +48,24 @@ const levels = [
       { beat: 4, type: "spike", width: 34, height: 42 },
       { beat: 7, type: "spike", width: 34, height: 40 },
       { beat: 10, type: "block", width: 44, height: 38 },
-      { beat: 12, type: "orb", radius: 16, yOffset: 122, power: 1.04 },
-      { beat: 14, type: "spike", width: 34, height: 50 },
-      { beat: 15, type: "spike", width: 34, height: 44 },
-      { beat: 18, type: "pad", width: 44, power: 1 },
-      { beat: 21, type: "block", width: 44, height: 42 },
-      { beat: 23, type: "orb", radius: 16, yOffset: 118, power: 1.05 },
-      { beat: 25, type: "spike", width: 34, height: 54 },
-      { beat: 26, type: "spike", width: 34, height: 48 },
-      { beat: 29, type: "block", width: 46, height: 44 },
-      { beat: 31, type: "pad", width: 46, power: 1.02 },
-      { beat: 34, type: "spike", width: 34, height: 50 },
-      { beat: 37, type: "block", width: 46, height: 46 },
-      { beat: 39, type: "orb", radius: 16, yOffset: 124, power: 1.08 },
-      { beat: 41, type: "spike", width: 34, height: 60 }
+      { beat: 12, type: "orb", radius: 16, yOffset: 114, power: 1.06 },
+      { beat: 14, type: "spike", width: 34, height: 52 },
+      { beat: 15, type: "spike", width: 34, height: 46 },
+      { beat: 19, type: "pad", width: 44, power: 1.04 },
+      { beat: 22, type: "block", width: 46, height: 42 },
+      { beat: 24, type: "orb", radius: 16, yOffset: 112, power: 1.08 },
+      { beat: 26, type: "spike", width: 34, height: 56 },
+      { beat: 27, type: "spike", width: 34, height: 50 },
+      { beat: 31, type: "block", width: 46, height: 46 },
+      { beat: 34, type: "orb", radius: 16, yOffset: 116, power: 1.1 },
+      { beat: 36, type: "spike", width: 34, height: 54 },
+      { beat: 39, type: "spike", width: 34, height: 62 }
     ],
-    melody: [392, 523.25, 587.33, 523.25]
+    soundtrack: {
+      lead: [659.25, 783.99, 880, 783.99, 698.46, 783.99, 659.25, 587.33],
+      bass: [164.81, 164.81, 196, 196, 174.61, 174.61, 146.83, 146.83],
+      harmony: [523.25, 587.33, 659.25, 587.33]
+    }
   },
   {
     name: "Back On Track",
@@ -96,7 +98,11 @@ const levels = [
       { beat: 39, type: "block", width: 44, height: 46 },
       { beat: 40, type: "orb", radius: 16, yOffset: 120, power: 1.04 }
     ],
-    melody: [440, 659.25, 587.33, 698.46]
+    soundtrack: {
+      lead: [698.46, 783.99, 880, 987.77, 880, 783.99, 698.46, 659.25],
+      bass: [174.61, 174.61, 196, 196, 220, 220, 196, 196],
+      harmony: [587.33, 659.25, 698.46, 783.99]
+    }
   },
   {
     name: "Polargeist",
@@ -131,7 +137,11 @@ const levels = [
       { beat: 41, type: "orb", radius: 16, yOffset: 120, power: 1.08 },
       { beat: 44, type: "spike", width: 30, height: 68 }
     ],
-    melody: [523.25, 659.25, 783.99, 698.46]
+    soundtrack: {
+      lead: [783.99, 880, 987.77, 1046.5, 987.77, 880, 783.99, 698.46],
+      bass: [196, 196, 220, 220, 246.94, 246.94, 220, 220],
+      harmony: [659.25, 698.46, 783.99, 880]
+    }
   }
 ];
 
@@ -341,13 +351,45 @@ function playTone(frequency, duration, volume, type = "triangle") {
   oscillator.stop(now + duration + 0.02);
 }
 
-function playBeat() {
-  const level = currentLevel();
-  const note = level.melody[state.beatIndex % level.melody.length];
-  const kick = state.beatIndex % 4 === 0 ? note / 2 : note * 0.75;
+function playSweepTone(startFrequency, endFrequency, duration, volume, type = "sine") {
+  const context = ensureAudio();
 
-  playTone(kick, 0.12, 0.05, "sine");
-  playTone(note, 0.16, 0.028, state.beatIndex % 2 === 0 ? "triangle" : "square");
+  if (!context || isMuted) {
+    return;
+  }
+
+  const now = context.currentTime;
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(startFrequency, now);
+  oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + duration);
+  gainNode.gain.setValueAtTime(0.0001, now);
+  gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.008);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.02);
+}
+
+function playBeat() {
+  const soundtrack = currentLevel().soundtrack;
+  const lead = soundtrack.lead[state.beatIndex % soundtrack.lead.length];
+  const bass = soundtrack.bass[state.beatIndex % soundtrack.bass.length];
+  const harmony = soundtrack.harmony[state.beatIndex % soundtrack.harmony.length];
+
+  if (state.beatIndex % 4 === 0) {
+    playSweepTone(132, 48, 0.16, 0.07, "sine");
+  } else {
+    playTone(2200, 0.03, 0.012, "square");
+  }
+
+  playTone(bass, 0.18, 0.038, "sawtooth");
+  playTone(lead, 0.12, 0.026, state.beatIndex % 2 === 0 ? "square" : "triangle");
+  playTone(harmony, 0.22, 0.015, "triangle");
   state.beatPulse = 1;
 
   console.debug("[Neon Cube] Beat tick", {
@@ -775,6 +817,7 @@ function triggerOrbJump(obstacle) {
   state.player.rotation = -0.44;
   state.playerTrail = 1;
   state.beatPulse = 1;
+  state.flashAlpha = Math.max(state.flashAlpha, 0.18);
   spawnJumpParticles();
 
   console.debug("[Neon Cube] Orb jump", {
@@ -1025,14 +1068,18 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(state.player.x + state.player.size / 2, state.player.y + state.player.size / 2);
   ctx.rotate(state.player.rotation);
-  ctx.shadowColor = "rgba(255, 228, 77, 0.75)";
+  ctx.shadowColor = `${currentLevel().accent}aa`;
   ctx.shadowBlur = 18;
   ctx.fillStyle = "#ffe44d";
   ctx.fillRect(-state.player.size / 2, -state.player.size / 2, state.player.size, state.player.size);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "#10213a";
+  ctx.strokeRect(-state.player.size / 2, -state.player.size / 2, state.player.size, state.player.size);
   ctx.shadowBlur = 0;
   ctx.fillStyle = "#10213a";
-  ctx.fillRect(-10, -6, 6, 6);
-  ctx.fillRect(4, -6, 6, 6);
+  ctx.fillRect(-state.player.size / 2 + 7, -state.player.size / 2 + 7, state.player.size - 14, 5);
+  ctx.fillRect(-state.player.size / 2 + 7, state.player.size / 2 - 12, state.player.size - 14, 5);
+  ctx.fillRect(-4, -4, 8, 8);
   ctx.restore();
 }
 
