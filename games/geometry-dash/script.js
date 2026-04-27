@@ -36,89 +36,95 @@ const BEAT_DURATION_MS = (60 / BPM) * 1000;
 const levels = [
   {
     name: "Stereo Madness",
-    speed: 5.9,
-    speedRamp: 0.00018,
-    lengthBeats: 36,
+    pixelsPerBeat: 120,
+    lengthBeats: 40,
     startBeats: 3,
     backgroundTop: "#0c1e37",
     backgroundBottom: "#09101d",
     ground: "#132243",
     accent: "#31e9ff",
     accentSoft: "rgba(49, 233, 255, 0.14)",
-    patterns: [
-      [{ type: "spike", width: 34, height: 40, beatsAfter: 2 }],
-      [
-        { type: "spike", width: 30, height: 36, beatsAfter: 1 },
-        { type: "spike", width: 30, height: 48, beatsAfter: 2 }
-      ],
-      [{ type: "block", width: 42, height: 40, beatsAfter: 2 }]
+    beatMap: [
+      { beat: 4, type: "spike", width: 34, height: 42 },
+      { beat: 7, type: "spike", width: 34, height: 40 },
+      { beat: 10, type: "block", width: 42, height: 38 },
+      { beat: 13, type: "spike", width: 32, height: 46 },
+      { beat: 16, type: "spike", width: 34, height: 42 },
+      { beat: 19, type: "block", width: 44, height: 40 },
+      { beat: 22, type: "spike", width: 34, height: 48 },
+      { beat: 25, type: "spike", width: 34, height: 42 },
+      { beat: 28, type: "block", width: 42, height: 42 },
+      { beat: 31, type: "spike", width: 34, height: 50 },
+      { beat: 34, type: "spike", width: 34, height: 44 }
     ],
     melody: [392, 523.25, 587.33, 523.25]
   },
   {
     name: "Back On Track",
-    speed: 6.8,
-    speedRamp: 0.00025,
-    lengthBeats: 40,
+    pixelsPerBeat: 112,
+    lengthBeats: 44,
     startBeats: 3,
     backgroundTop: "#191238",
     backgroundBottom: "#0a0d1b",
     ground: "#25184b",
     accent: "#ff4d9a",
     accentSoft: "rgba(255, 77, 154, 0.16)",
-    patterns: [
-      [
-        { type: "spike", width: 30, height: 38, beatsAfter: 1 },
-        { type: "spike", width: 30, height: 50, beatsAfter: 2 }
-      ],
-      [
-        { type: "block", width: 42, height: 38, beatsAfter: 1 },
-        { type: "spike", width: 34, height: 54, beatsAfter: 2 }
-      ],
-      [
-        { type: "spike", width: 30, height: 40, beatsAfter: 1 },
-        { type: "spike", width: 30, height: 50, beatsAfter: 1 },
-        { type: "spike", width: 30, height: 60, beatsAfter: 2 }
-      ]
+    beatMap: [
+      { beat: 4, type: "spike", width: 32, height: 40 },
+      { beat: 6, type: "spike", width: 32, height: 48 },
+      { beat: 9, type: "block", width: 44, height: 38 },
+      { beat: 11, type: "spike", width: 32, height: 50 },
+      { beat: 14, type: "spike", width: 32, height: 42 },
+      { beat: 16, type: "block", width: 44, height: 42 },
+      { beat: 18, type: "spike", width: 32, height: 54 },
+      { beat: 21, type: "spike", width: 32, height: 44 },
+      { beat: 23, type: "spike", width: 32, height: 54 },
+      { beat: 26, type: "block", width: 44, height: 42 },
+      { beat: 28, type: "spike", width: 32, height: 58 },
+      { beat: 31, type: "spike", width: 32, height: 46 },
+      { beat: 33, type: "block", width: 44, height: 44 },
+      { beat: 35, type: "spike", width: 32, height: 58 },
+      { beat: 38, type: "spike", width: 32, height: 48 }
     ],
     melody: [440, 659.25, 587.33, 698.46]
   },
   {
     name: "Polargeist",
-    speed: 7.6,
-    speedRamp: 0.00032,
-    lengthBeats: 44,
+    pixelsPerBeat: 104,
+    lengthBeats: 48,
     startBeats: 4,
     backgroundTop: "#122d28",
     backgroundBottom: "#08110f",
     ground: "#183932",
     accent: "#ffe44d",
     accentSoft: "rgba(255, 228, 77, 0.16)",
-    patterns: [
-      [
-        { type: "spike", width: 28, height: 42, beatsAfter: 1 },
-        { type: "spike", width: 28, height: 54, beatsAfter: 1 },
-        { type: "spike", width: 28, height: 66, beatsAfter: 2 }
-      ],
-      [
-        { type: "block", width: 40, height: 36, beatsAfter: 1 },
-        { type: "block", width: 40, height: 48, beatsAfter: 1 },
-        { type: "spike", width: 32, height: 62, beatsAfter: 2 }
-      ],
-      [
-        { type: "spike", width: 30, height: 48, beatsAfter: 1 },
-        { type: "block", width: 40, height: 40, beatsAfter: 1 },
-        { type: "spike", width: 30, height: 64, beatsAfter: 2 }
-      ]
+    beatMap: [
+      { beat: 5, type: "spike", width: 30, height: 44 },
+      { beat: 7, type: "spike", width: 30, height: 54 },
+      { beat: 9, type: "block", width: 42, height: 40 },
+      { beat: 11, type: "spike", width: 30, height: 58 },
+      { beat: 14, type: "spike", width: 30, height: 48 },
+      { beat: 16, type: "block", width: 42, height: 44 },
+      { beat: 18, type: "spike", width: 30, height: 62 },
+      { beat: 20, type: "spike", width: 30, height: 50 },
+      { beat: 23, type: "block", width: 44, height: 46 },
+      { beat: 25, type: "spike", width: 30, height: 64 },
+      { beat: 27, type: "spike", width: 30, height: 52 },
+      { beat: 30, type: "block", width: 44, height: 48 },
+      { beat: 32, type: "spike", width: 30, height: 66 },
+      { beat: 34, type: "spike", width: 30, height: 54 },
+      { beat: 36, type: "block", width: 44, height: 44 },
+      { beat: 38, type: "spike", width: 30, height: 68 },
+      { beat: 41, type: "spike", width: 30, height: 56 }
     ],
     melody: [523.25, 659.25, 783.99, 698.46]
   }
 ];
 
 const config = {
-  gravity: 1.22,
-  fallGravity: 1.78,
-  jumpForce: -16.6,
+  gravity: 0.72,
+  fallGravity: 0.94,
+  jumpForce: -12.6,
   groundHeight: 72,
   pulseSpeed: 0.055,
   shakeDecay: 0.84,
@@ -138,9 +144,7 @@ const state = {
   score: 0,
   totalDistance: 0,
   levelDistance: 0,
-  speed: levels[0].speed,
   lastTimestamp: 0,
-  nextSpawnBeat: 2,
   beatIndex: 0,
   lastTriggeredBeat: -1,
   pulse: 0,
@@ -352,7 +356,18 @@ function getGroundY() {
 }
 
 function getPixelsPerBeat() {
-  return currentLevel().speed * (getBeatDurationMs() / (1000 / 60));
+  return currentLevel().pixelsPerBeat;
+}
+
+function buildObstaclesForLevel(levelIndex) {
+  const level = levels[levelIndex];
+  return level.beatMap.map((entry) => ({
+    beat: entry.beat,
+    type: entry.type,
+    x: entry.beat * level.pixelsPerBeat,
+    width: entry.width,
+    height: entry.height
+  }));
 }
 
 function updateHudStats() {
@@ -502,9 +517,7 @@ function prepareLevel(levelIndex) {
   state.score = 0;
   state.totalDistance = 0;
   state.levelDistance = 0;
-  state.speed = currentLevel().speed;
   state.lastTimestamp = 0;
-  state.nextSpawnBeat = currentLevel().startBeats;
   state.beatIndex = 0;
   state.lastTriggeredBeat = -1;
   state.currentBeat = 0;
@@ -514,7 +527,7 @@ function prepareLevel(levelIndex) {
   state.shake = 0;
   state.playerTrail = 0;
   state.lastLoggedProgress = -1;
-  state.obstacles = [];
+  state.obstacles = buildObstaclesForLevel(levelIndex);
   state.particles = [];
   state.pulse = 0;
   resetPlayer();
@@ -658,30 +671,6 @@ function endGame() {
   }
 }
 
-function queuePatternIfNeeded() {
-  const cameraAnchor = state.totalDistance + state.player.x - 120;
-  const pixelsPerBeat = getPixelsPerBeat();
-
-  while (state.nextSpawnBeat * pixelsPerBeat - cameraAnchor < canvas.width + config.spawnLead) {
-    const patterns = currentLevel().patterns;
-    const pattern = patterns[state.beatIndex % patterns.length];
-    let cursorBeat = state.nextSpawnBeat;
-
-    pattern.forEach((piece) => {
-      state.obstacles.push({
-        type: piece.type,
-        x: cursorBeat * pixelsPerBeat,
-        width: piece.width,
-        height: piece.height
-      });
-
-      cursorBeat += piece.beatsAfter;
-    });
-
-    state.nextSpawnBeat = cursorBeat + 1;
-  }
-}
-
 function syncToAudioClock() {
   if (!state.running) {
     return;
@@ -713,7 +702,10 @@ function updatePlayer(deltaFactor) {
   const gravity = state.player.velocityY < 0 ? config.gravity : config.fallGravity;
   state.player.velocityY += gravity * deltaFactor;
   state.player.y += state.player.velocityY * deltaFactor;
-  state.player.rotation = Math.min(1.35, state.player.rotation + 0.075 * deltaFactor);
+  state.player.rotation = Math.max(
+    -0.42,
+    Math.min(1.18, state.player.velocityY * 0.052)
+  );
   state.playerTrail = Math.max(0, state.playerTrail - 0.08 * deltaFactor);
 
   const groundY = getGroundY() - state.player.size;
@@ -729,16 +721,6 @@ function updatePlayer(deltaFactor) {
 function updateLevelProgress(deltaFactor, deltaMs) {
   syncToAudioClock();
 
-  for (let index = state.obstacles.length - 1; index >= 0; index -= 1) {
-    const obstacle = state.obstacles[index];
-
-    if (obstacle.x + obstacle.width < state.totalDistance + state.player.x - 260) {
-      state.obstacles.splice(index, 1);
-    }
-  }
-
-  queuePatternIfNeeded();
-
   const progress = getCurrentProgressPercent();
   if (
     progress !== state.lastLoggedProgress &&
@@ -748,7 +730,8 @@ function updateLevelProgress(deltaFactor, deltaMs) {
       level: getLevelStorageId(state.currentLevelIndex),
       progress,
       distance: Math.floor(state.levelDistance),
-      targetDistance: Math.floor(getLevelDistanceTarget())
+      targetDistance: Math.floor(getLevelDistanceTarget()),
+      beat: Number(state.currentBeat.toFixed(2))
     });
   }
   state.lastLoggedProgress = progress;
@@ -759,7 +742,8 @@ function updateLevelProgress(deltaFactor, deltaMs) {
     console.debug("[Neon Cube] Beat sync", {
       beat: state.beatIndex,
       beatClockRemainderMs: Math.round(currentBeatRemainderMs),
-      nextSpawnBeat: state.nextSpawnBeat
+      nextObstacleBeat:
+        state.obstacles.find((obstacle) => obstacle.x > state.totalDistance)?.beat || null
     });
   }
 
@@ -1017,9 +1001,13 @@ function gameLoop(timestamp) {
 }
 
 function triggerJump() {
+  if (!state.player.grounded) {
+    return;
+  }
+
   state.player.velocityY = config.jumpForce;
   state.player.grounded = false;
-  state.player.rotation = -0.28;
+  state.player.rotation = -0.36;
   state.playerTrail = 1;
   spawnJumpParticles();
 }
