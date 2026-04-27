@@ -36,8 +36,8 @@ const BEAT_DURATION_MS = (60 / BPM) * 1000;
 const levels = [
   {
     name: "Stereo Madness",
-    pixelsPerBeat: 120,
-    lengthBeats: 40,
+    pixelsPerBeat: 138,
+    lengthBeats: 42,
     startBeats: 3,
     backgroundTop: "#0c1e37",
     backgroundBottom: "#09101d",
@@ -46,23 +46,28 @@ const levels = [
     accentSoft: "rgba(49, 233, 255, 0.14)",
     beatMap: [
       { beat: 4, type: "spike", width: 34, height: 42 },
-      { beat: 7, type: "spike", width: 34, height: 40 },
-      { beat: 10, type: "block", width: 42, height: 38 },
-      { beat: 13, type: "spike", width: 32, height: 46 },
+      { beat: 7, type: "pad", width: 42, power: 1 },
+      { beat: 9, type: "block", width: 44, height: 38 },
+      { beat: 10, type: "orb", radius: 16, yOffset: 132, power: 1 },
+      { beat: 13, type: "spike", width: 34, height: 46 },
       { beat: 16, type: "spike", width: 34, height: 42 },
-      { beat: 19, type: "block", width: 44, height: 40 },
-      { beat: 22, type: "spike", width: 34, height: 48 },
-      { beat: 25, type: "spike", width: 34, height: 42 },
-      { beat: 28, type: "block", width: 42, height: 42 },
-      { beat: 31, type: "spike", width: 34, height: 50 },
-      { beat: 34, type: "spike", width: 34, height: 44 }
+      { beat: 17, type: "spike", width: 34, height: 42 },
+      { beat: 20, type: "block", width: 44, height: 40 },
+      { beat: 21, type: "orb", radius: 16, yOffset: 118, power: 1 },
+      { beat: 24, type: "spike", width: 34, height: 48 },
+      { beat: 27, type: "pad", width: 46, power: 1 },
+      { beat: 29, type: "spike", width: 34, height: 42 },
+      { beat: 30, type: "spike", width: 34, height: 42 },
+      { beat: 33, type: "block", width: 44, height: 42 },
+      { beat: 35, type: "orb", radius: 16, yOffset: 124, power: 1 },
+      { beat: 38, type: "spike", width: 34, height: 50 }
     ],
     melody: [392, 523.25, 587.33, 523.25]
   },
   {
     name: "Back On Track",
-    pixelsPerBeat: 112,
-    lengthBeats: 44,
+    pixelsPerBeat: 152,
+    lengthBeats: 46,
     startBeats: 3,
     backgroundTop: "#191238",
     backgroundBottom: "#0a0d1b",
@@ -72,26 +77,30 @@ const levels = [
     beatMap: [
       { beat: 4, type: "spike", width: 32, height: 40 },
       { beat: 6, type: "spike", width: 32, height: 48 },
-      { beat: 9, type: "block", width: 44, height: 38 },
-      { beat: 11, type: "spike", width: 32, height: 50 },
-      { beat: 14, type: "spike", width: 32, height: 42 },
-      { beat: 16, type: "block", width: 44, height: 42 },
-      { beat: 18, type: "spike", width: 32, height: 54 },
-      { beat: 21, type: "spike", width: 32, height: 44 },
-      { beat: 23, type: "spike", width: 32, height: 54 },
-      { beat: 26, type: "block", width: 44, height: 42 },
+      { beat: 8, type: "pad", width: 44, power: 1 },
+      { beat: 10, type: "block", width: 44, height: 38 },
+      { beat: 11, type: "orb", radius: 16, yOffset: 126, power: 1 },
+      { beat: 14, type: "spike", width: 32, height: 50 },
+      { beat: 15, type: "spike", width: 32, height: 42 },
+      { beat: 18, type: "block", width: 44, height: 42 },
+      { beat: 19, type: "orb", radius: 16, yOffset: 118, power: 1 },
+      { beat: 22, type: "spike", width: 32, height: 54 },
+      { beat: 23, type: "spike", width: 32, height: 44 },
+      { beat: 26, type: "pad", width: 46, power: 1.05 },
       { beat: 28, type: "spike", width: 32, height: 58 },
-      { beat: 31, type: "spike", width: 32, height: 46 },
-      { beat: 33, type: "block", width: 44, height: 44 },
+      { beat: 31, type: "block", width: 44, height: 44 },
+      { beat: 32, type: "orb", radius: 16, yOffset: 128, power: 1 },
       { beat: 35, type: "spike", width: 32, height: 58 },
-      { beat: 38, type: "spike", width: 32, height: 48 }
+      { beat: 36, type: "spike", width: 32, height: 48 },
+      { beat: 39, type: "block", width: 44, height: 46 },
+      { beat: 40, type: "orb", radius: 16, yOffset: 120, power: 1.04 }
     ],
     melody: [440, 659.25, 587.33, 698.46]
   },
   {
     name: "Polargeist",
-    pixelsPerBeat: 104,
-    lengthBeats: 48,
+    pixelsPerBeat: 166,
+    lengthBeats: 50,
     startBeats: 4,
     backgroundTop: "#122d28",
     backgroundBottom: "#08110f",
@@ -101,34 +110,42 @@ const levels = [
     beatMap: [
       { beat: 5, type: "spike", width: 30, height: 44 },
       { beat: 7, type: "spike", width: 30, height: 54 },
-      { beat: 9, type: "block", width: 42, height: 40 },
-      { beat: 11, type: "spike", width: 30, height: 58 },
-      { beat: 14, type: "spike", width: 30, height: 48 },
-      { beat: 16, type: "block", width: 42, height: 44 },
-      { beat: 18, type: "spike", width: 30, height: 62 },
-      { beat: 20, type: "spike", width: 30, height: 50 },
-      { beat: 23, type: "block", width: 44, height: 46 },
-      { beat: 25, type: "spike", width: 30, height: 64 },
-      { beat: 27, type: "spike", width: 30, height: 52 },
-      { beat: 30, type: "block", width: 44, height: 48 },
-      { beat: 32, type: "spike", width: 30, height: 66 },
-      { beat: 34, type: "spike", width: 30, height: 54 },
-      { beat: 36, type: "block", width: 44, height: 44 },
-      { beat: 38, type: "spike", width: 30, height: 68 },
-      { beat: 41, type: "spike", width: 30, height: 56 }
+      { beat: 9, type: "pad", width: 46, power: 1.05 },
+      { beat: 10, type: "block", width: 42, height: 40 },
+      { beat: 11, type: "orb", radius: 16, yOffset: 126, power: 1.04 },
+      { beat: 14, type: "spike", width: 30, height: 58 },
+      { beat: 15, type: "spike", width: 30, height: 48 },
+      { beat: 18, type: "block", width: 42, height: 44 },
+      { beat: 19, type: "orb", radius: 16, yOffset: 118, power: 1.06 },
+      { beat: 22, type: "spike", width: 30, height: 62 },
+      { beat: 23, type: "spike", width: 30, height: 50 },
+      { beat: 26, type: "pad", width: 46, power: 1.08 },
+      { beat: 28, type: "spike", width: 30, height: 64 },
+      { beat: 29, type: "spike", width: 30, height: 52 },
+      { beat: 32, type: "block", width: 44, height: 48 },
+      { beat: 33, type: "orb", radius: 16, yOffset: 126, power: 1.08 },
+      { beat: 36, type: "spike", width: 30, height: 66 },
+      { beat: 37, type: "spike", width: 30, height: 54 },
+      { beat: 40, type: "block", width: 44, height: 44 },
+      { beat: 41, type: "orb", radius: 16, yOffset: 120, power: 1.08 },
+      { beat: 44, type: "spike", width: 30, height: 68 }
     ],
     melody: [523.25, 659.25, 783.99, 698.46]
   }
 ];
 
 const config = {
-  gravity: 0.72,
-  fallGravity: 0.94,
-  jumpForce: -12.6,
+  gravity: 0.82,
+  fallGravity: 1.08,
+  jumpForce: -13.2,
+  orbJumpForce: -12.9,
+  padJumpForce: -14.6,
   groundHeight: 72,
   pulseSpeed: 0.055,
   shakeDecay: 0.84,
-  spawnLead: 420
+  spawnLead: 420,
+  orbRadius: 16,
+  orbActivationPadding: 8
 };
 
 let animationFrameId = null;
@@ -361,12 +378,17 @@ function getPixelsPerBeat() {
 
 function buildObstaclesForLevel(levelIndex) {
   const level = levels[levelIndex];
-  return level.beatMap.map((entry) => ({
+  return level.beatMap.map((entry, index) => ({
+    id: `${getLevelStorageId(levelIndex)}-${index}`,
     beat: entry.beat,
     type: entry.type,
     x: entry.beat * level.pixelsPerBeat,
-    width: entry.width,
-    height: entry.height
+    width: entry.width || 0,
+    height: entry.height || 0,
+    radius: entry.radius || config.orbRadius,
+    yOffset: entry.yOffset || 0,
+    power: entry.power || 1,
+    activated: false
   }));
 }
 
@@ -718,8 +740,118 @@ function updatePlayer(deltaFactor) {
   }
 }
 
+function getPlayerBounds() {
+  return {
+    left: state.player.x + 4,
+    right: state.player.x + state.player.size - 4,
+    top: state.player.y + 4,
+    bottom: state.player.y + state.player.size - 4
+  };
+}
+
+function getOrbCenter(obstacle) {
+  return {
+    x: obstacle.x - state.totalDistance + obstacle.radius,
+    y: getGroundY() - obstacle.yOffset
+  };
+}
+
+function getPadBounds(obstacle) {
+  const groundY = getGroundY();
+  const padHeight = 14;
+  return {
+    left: obstacle.x - state.totalDistance,
+    right: obstacle.x - state.totalDistance + obstacle.width,
+    top: groundY - padHeight,
+    bottom: groundY
+  };
+}
+
+function triggerOrbJump(obstacle) {
+  obstacle.activated = true;
+  state.player.velocityY = config.orbJumpForce * obstacle.power;
+  state.player.grounded = false;
+  state.player.rotation = -0.44;
+  state.playerTrail = 1;
+  state.beatPulse = 1;
+  spawnJumpParticles();
+
+  console.debug("[Neon Cube] Orb jump", {
+    level: getLevelStorageId(state.currentLevelIndex),
+    beat: obstacle.beat,
+    power: obstacle.power
+  });
+}
+
+function tryActivateOrb() {
+  const player = getPlayerBounds();
+
+  for (const obstacle of state.obstacles) {
+    if (obstacle.type !== "orb" || obstacle.activated) {
+      continue;
+    }
+
+    const center = getOrbCenter(obstacle);
+    const orbLeft = center.x - obstacle.radius - config.orbActivationPadding;
+    const orbRight = center.x + obstacle.radius + config.orbActivationPadding;
+    const orbTop = center.y - obstacle.radius - config.orbActivationPadding;
+    const orbBottom = center.y + obstacle.radius + config.orbActivationPadding;
+
+    const overlaps =
+      player.right > orbLeft &&
+      player.left < orbRight &&
+      player.bottom > orbTop &&
+      player.top < orbBottom;
+
+    if (overlaps) {
+      triggerOrbJump(obstacle);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function updateSupportObjects() {
+  const player = getPlayerBounds();
+
+  for (const obstacle of state.obstacles) {
+    if (obstacle.type !== "pad" || obstacle.activated) {
+      continue;
+    }
+
+    const pad = getPadBounds(obstacle);
+    const isTouchingPad =
+      state.player.velocityY >= 0 &&
+      player.right > pad.left + 6 &&
+      player.left < pad.right - 6 &&
+      player.bottom >= pad.top &&
+      player.bottom <= pad.bottom + 12;
+
+    if (!isTouchingPad) {
+      continue;
+    }
+
+    obstacle.activated = true;
+    state.player.velocityY = config.padJumpForce * obstacle.power;
+    state.player.y = pad.top - state.player.size;
+    state.player.grounded = false;
+    state.player.rotation = -0.46;
+    state.playerTrail = 1;
+    state.beatPulse = 1;
+    spawnJumpParticles();
+
+    console.debug("[Neon Cube] Pad jump", {
+      level: getLevelStorageId(state.currentLevelIndex),
+      beat: obstacle.beat,
+      power: obstacle.power
+    });
+  }
+}
+
 function updateLevelProgress(deltaFactor, deltaMs) {
   syncToAudioClock();
+  updateSupportObjects();
 
   const progress = getCurrentProgressPercent();
   if (
@@ -781,22 +913,23 @@ function updateEffects(deltaFactor) {
 }
 
 function checkCollision() {
-  const playerLeft = state.player.x + 5;
-  const playerRight = state.player.x + state.player.size - 5;
-  const playerTop = state.player.y + 5;
-  const playerBottom = state.player.y + state.player.size - 4;
+  const player = getPlayerBounds();
   const groundY = getGroundY();
 
   for (const obstacle of state.obstacles) {
+    if (obstacle.type === "orb" || obstacle.type === "pad") {
+      continue;
+    }
+
     const screenX = obstacle.x - state.totalDistance;
     const obstacleTop = groundY - obstacle.height;
 
     if (obstacle.type === "block") {
       const overlaps =
-        playerRight > screenX + 3 &&
-        playerLeft < screenX + obstacle.width - 3 &&
-        playerBottom > obstacleTop + 3 &&
-        playerTop < groundY - 2;
+        player.right > screenX + 3 &&
+        player.left < screenX + obstacle.width - 3 &&
+        player.bottom > obstacleTop + 3 &&
+        player.top < groundY - 2;
 
       if (overlaps) {
         return true;
@@ -809,10 +942,10 @@ function checkCollision() {
     const spikeRight = screenX + obstacle.width - 5;
     const spikeTop = obstacleTop + 10;
     const overlapsSpike =
-      playerRight > spikeLeft &&
-      playerLeft < spikeRight &&
-      playerBottom > spikeTop &&
-      playerTop < groundY - 2;
+      player.right > spikeLeft &&
+      player.left < spikeRight &&
+      player.bottom > spikeTop &&
+      player.top < groundY - 2;
 
     if (overlapsSpike) {
       return true;
@@ -909,6 +1042,57 @@ function drawObstacles() {
     const screenX = obstacle.x - state.totalDistance;
 
     if (screenX > canvas.width + 60 || screenX + obstacle.width < -60) {
+      if (obstacle.type === "orb") {
+        const center = getOrbCenter(obstacle);
+
+        if (center.x < -60 || center.x > canvas.width + 60) {
+          continue;
+        }
+      } else {
+        continue;
+      }
+    }
+
+    if (obstacle.type === "pad") {
+      const pad = getPadBounds(obstacle);
+      const glow = obstacle.activated ? "rgba(255, 228, 77, 0.18)" : `${currentLevel().accent}66`;
+
+      ctx.save();
+      ctx.shadowColor = glow;
+      ctx.shadowBlur = obstacle.activated ? 10 : 20;
+      ctx.fillStyle = obstacle.activated ? "#ffffff" : currentLevel().accent;
+      ctx.beginPath();
+      ctx.roundRect(screenX, groundY - 14, obstacle.width, 14, 8);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = "#0a1730";
+      ctx.fillRect(screenX + 10, groundY - 9, Math.max(12, obstacle.width - 20), 4);
+      continue;
+    }
+
+    if (obstacle.type === "orb") {
+      const center = getOrbCenter(obstacle);
+      const pulse = 1 + Math.sin(state.pulse + obstacle.beat) * 0.08;
+
+      ctx.save();
+      ctx.globalAlpha = obstacle.activated ? 0.35 : 1;
+      ctx.shadowColor = currentLevel().accent;
+      ctx.shadowBlur = obstacle.activated ? 8 : 20;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, obstacle.radius * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = currentLevel().accent;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.fillStyle = obstacle.activated ? "rgba(10, 23, 48, 0.45)" : currentLevel().accent;
+      ctx.arc(center.x, center.y, obstacle.radius * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
       continue;
     }
 
@@ -1012,6 +1196,15 @@ function triggerJump() {
   spawnJumpParticles();
 }
 
+function handleJumpInput() {
+  if (state.player.grounded) {
+    triggerJump();
+    return;
+  }
+
+  tryActivateOrb();
+}
+
 function handlePointerInput(event) {
   if (state.mode !== "playing") {
     return;
@@ -1022,12 +1215,7 @@ function handlePointerInput(event) {
   }
 
   event.preventDefault();
-
-  if (!state.player.grounded) {
-    return;
-  }
-
-  triggerJump();
+  handleJumpInput();
 }
 
 function handleKeyboardInput(event) {
@@ -1038,9 +1226,7 @@ function handleKeyboardInput(event) {
   event.preventDefault();
 
   if (state.mode === "playing") {
-    if (state.player.grounded) {
-      triggerJump();
-    }
+    handleJumpInput();
     return;
   }
 
