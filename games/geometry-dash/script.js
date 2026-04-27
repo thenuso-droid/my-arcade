@@ -36,7 +36,7 @@ const BEAT_DURATION_MS = (60 / BPM) * 1000;
 const levels = [
   {
     name: "Stereo Madness",
-    pixelsPerBeat: 138,
+    pixelsPerBeat: 176,
     lengthBeats: 42,
     startBeats: 3,
     backgroundTop: "#0c1e37",
@@ -46,27 +46,28 @@ const levels = [
     accentSoft: "rgba(49, 233, 255, 0.14)",
     beatMap: [
       { beat: 4, type: "spike", width: 34, height: 42 },
-      { beat: 7, type: "pad", width: 42, power: 1 },
-      { beat: 9, type: "block", width: 44, height: 38 },
-      { beat: 10, type: "orb", radius: 16, yOffset: 132, power: 1 },
-      { beat: 13, type: "spike", width: 34, height: 46 },
-      { beat: 16, type: "spike", width: 34, height: 42 },
-      { beat: 17, type: "spike", width: 34, height: 42 },
-      { beat: 20, type: "block", width: 44, height: 40 },
-      { beat: 21, type: "orb", radius: 16, yOffset: 118, power: 1 },
-      { beat: 24, type: "spike", width: 34, height: 48 },
-      { beat: 27, type: "pad", width: 46, power: 1 },
-      { beat: 29, type: "spike", width: 34, height: 42 },
-      { beat: 30, type: "spike", width: 34, height: 42 },
-      { beat: 33, type: "block", width: 44, height: 42 },
-      { beat: 35, type: "orb", radius: 16, yOffset: 124, power: 1 },
-      { beat: 38, type: "spike", width: 34, height: 50 }
+      { beat: 7, type: "spike", width: 34, height: 40 },
+      { beat: 10, type: "block", width: 44, height: 38 },
+      { beat: 12, type: "orb", radius: 16, yOffset: 122, power: 1.04 },
+      { beat: 14, type: "spike", width: 34, height: 50 },
+      { beat: 15, type: "spike", width: 34, height: 44 },
+      { beat: 18, type: "pad", width: 44, power: 1 },
+      { beat: 21, type: "block", width: 44, height: 42 },
+      { beat: 23, type: "orb", radius: 16, yOffset: 118, power: 1.05 },
+      { beat: 25, type: "spike", width: 34, height: 54 },
+      { beat: 26, type: "spike", width: 34, height: 48 },
+      { beat: 29, type: "block", width: 46, height: 44 },
+      { beat: 31, type: "pad", width: 46, power: 1.02 },
+      { beat: 34, type: "spike", width: 34, height: 50 },
+      { beat: 37, type: "block", width: 46, height: 46 },
+      { beat: 39, type: "orb", radius: 16, yOffset: 124, power: 1.08 },
+      { beat: 41, type: "spike", width: 34, height: 60 }
     ],
     melody: [392, 523.25, 587.33, 523.25]
   },
   {
     name: "Back On Track",
-    pixelsPerBeat: 152,
+    pixelsPerBeat: 192,
     lengthBeats: 46,
     startBeats: 3,
     backgroundTop: "#191238",
@@ -99,7 +100,7 @@ const levels = [
   },
   {
     name: "Polargeist",
-    pixelsPerBeat: 166,
+    pixelsPerBeat: 210,
     lengthBeats: 50,
     startBeats: 4,
     backgroundTop: "#122d28",
@@ -135,10 +136,10 @@ const levels = [
 ];
 
 const config = {
-  gravity: 0.82,
-  fallGravity: 1.08,
-  jumpForce: -13.2,
-  orbJumpForce: -12.9,
+  gravity: 0.84,
+  fallGravity: 1.12,
+  jumpForce: -13.4,
+  orbJumpForce: -13.1,
   padJumpForce: -14.6,
   groundHeight: 72,
   pulseSpeed: 0.055,
@@ -1074,11 +1075,17 @@ function drawObstacles() {
     if (obstacle.type === "orb") {
       const center = getOrbCenter(obstacle);
       const pulse = 1 + Math.sin(state.pulse + obstacle.beat) * 0.08;
+      const haloRadius = obstacle.radius * (1.42 + state.beatPulse * 0.18);
 
       ctx.save();
       ctx.globalAlpha = obstacle.activated ? 0.35 : 1;
       ctx.shadowColor = currentLevel().accent;
-      ctx.shadowBlur = obstacle.activated ? 8 : 20;
+      ctx.shadowBlur = obstacle.activated ? 10 : 24;
+      ctx.fillStyle = obstacle.activated ? "rgba(255, 255, 255, 0.18)" : `${currentLevel().accent}40`;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, haloRadius, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       ctx.arc(center.x, center.y, obstacle.radius * pulse, 0, Math.PI * 2);
