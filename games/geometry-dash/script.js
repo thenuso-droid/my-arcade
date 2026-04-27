@@ -151,6 +151,7 @@ const config = {
   jumpForce: -13.4,
   orbJumpForce: -13.1,
   padJumpForce: -14.6,
+  rotationSpeed: 0.2,
   groundHeight: 72,
   pulseSpeed: 0.055,
   shakeDecay: 0.84,
@@ -534,8 +535,13 @@ function setMode(mode) {
 function resetPlayer() {
   state.player.y = getGroundY() - state.player.size;
   state.player.velocityY = 0;
-  state.player.rotation = 0;
+  state.player.rotation = snapRotationToRightAngle(state.player.rotation);
   state.player.grounded = true;
+}
+
+function snapRotationToRightAngle(rotation) {
+  const quarterTurn = Math.PI / 2;
+  return Math.round(rotation / quarterTurn) * quarterTurn;
 }
 
 function spawnJumpParticles() {
@@ -767,10 +773,9 @@ function updatePlayer(deltaFactor) {
   const gravity = state.player.velocityY < 0 ? config.gravity : config.fallGravity;
   state.player.velocityY += gravity * deltaFactor;
   state.player.y += state.player.velocityY * deltaFactor;
-  state.player.rotation = Math.max(
-    -0.42,
-    Math.min(1.18, state.player.velocityY * 0.052)
-  );
+  if (!state.player.grounded) {
+    state.player.rotation += config.rotationSpeed * deltaFactor;
+  }
   state.playerTrail = Math.max(0, state.playerTrail - 0.08 * deltaFactor);
 
   const groundY = getGroundY() - state.player.size;
@@ -778,7 +783,7 @@ function updatePlayer(deltaFactor) {
   if (state.player.y >= groundY) {
     state.player.y = groundY;
     state.player.velocityY = 0;
-    state.player.rotation = 0;
+    state.player.rotation = snapRotationToRightAngle(state.player.rotation);
     state.player.grounded = true;
   }
 }
@@ -814,7 +819,6 @@ function triggerOrbJump(obstacle) {
   obstacle.activated = true;
   state.player.velocityY = config.orbJumpForce * obstacle.power;
   state.player.grounded = false;
-  state.player.rotation = -0.44;
   state.playerTrail = 1;
   state.beatPulse = 1;
   state.flashAlpha = Math.max(state.flashAlpha, 0.18);
@@ -880,7 +884,6 @@ function updateSupportObjects() {
     state.player.velocityY = config.padJumpForce * obstacle.power;
     state.player.y = pad.top - state.player.size;
     state.player.grounded = false;
-    state.player.rotation = -0.46;
     state.playerTrail = 1;
     state.beatPulse = 1;
     spawnJumpParticles();
@@ -1243,7 +1246,6 @@ function triggerJump() {
 
   state.player.velocityY = config.jumpForce;
   state.player.grounded = false;
-  state.player.rotation = -0.36;
   state.playerTrail = 1;
   spawnJumpParticles();
 }
