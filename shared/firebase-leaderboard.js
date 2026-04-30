@@ -2,16 +2,6 @@
   const PLAYER_NAME_KEY = "arcadePlayerName";
   const LEGACY_PLAYER_NAME_KEY = "arcade-player-name";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBG5lasnMDOaGjSiVQC8EsLAmStXWj65BE",
-    authDomain: "my-arcade-leaderboard.firebaseapp.com",
-    projectId: "my-arcade-leaderboard",
-    storageBucket: "my-arcade-leaderboard.firebasestorage.app",
-    messagingSenderId: "5027936744",
-    appId: "1:5027936744:web:5e14da2c2025edcbdfcc5d",
-    measurementId: "G-41T7WXHW2X"
-  };
-
   const state = {
     game: "",
     allowZeroScores: false,
@@ -24,6 +14,16 @@
 
   let firestore = null;
 
+  function getFirebaseConfig() {
+    if (window.ARCADE_FIREBASE_CONFIG && window.ARCADE_FIREBASE_CONFIG.apiKey) {
+      return window.ARCADE_FIREBASE_CONFIG;
+    }
+
+    throw new Error(
+      "Firebase config is missing. Ensure shared/firebase-config.js is generated before loading the leaderboard."
+    );
+  }
+
   function ensureFirestore() {
     if (firestore) {
       return firestore;
@@ -35,7 +35,7 @@
 
     const app = window.firebase.apps.length
       ? window.firebase.app()
-      : window.firebase.initializeApp(firebaseConfig);
+      : window.firebase.initializeApp(getFirebaseConfig());
 
     firestore = app.firestore();
     return firestore;
