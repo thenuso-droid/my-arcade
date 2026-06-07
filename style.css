@@ -448,6 +448,10 @@ h1 {
   background: rgba(67, 239, 255, 0.36);
 }
 
+.ovo-card::before {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 .game-page {
   margin-top: 2.5rem;
   padding: 2.5rem;

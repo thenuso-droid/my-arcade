@@ -1,0 +1,21 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" rx="40" fill="#07090F"/>
+  <rect x="35" y="35" width="730" height="430" rx="28" fill="#0F131C" stroke="#272D3B" stroke-width="4"/>
+  <circle cx="610" cy="126" r="92" fill="url(#paint0_radial)"/>
+  <rect x="110" y="328" width="580" height="24" rx="12" fill="#F5F7FB"/>
+  <rect x="300" y="252" width="122" height="18" rx="9" fill="#F5F7FB"/>
+  <rect x="490" y="218" width="92" height="18" rx="9" fill="#F5F7FB"/>
+  <rect x="184" y="188" width="82" height="18" rx="9" fill="#F5F7FB"/>
+  <path d="M123 327L149 281L175 327H123Z" fill="#F5F7FB"/>
+  <path d="M175 327L201 281L227 327H175Z" fill="#F5F7FB"/>
+  <path d="M544 327L570 281L596 327H544Z" fill="#F5F7FB"/>
+  <rect x="357" y="286" width="36" height="36" rx="8" fill="#FFD84D" stroke="#141922" stroke-width="6"/>
+  <path d="M385 88C421.451 88 451 117.549 451 154C451 190.451 421.451 220 385 220C348.549 220 319 190.451 319 154C319 117.549 348.549 88 385 88ZM385 112C361.804 112 343 130.804 343 154C343 177.196 361.804 196 385 196C408.196 196 427 177.196 427 154C427 130.804 408.196 112 385 112Z" fill="#F5F7FB"/>
+  <text x="110" y="126" fill="#F5F7FB" font-family="Arial, sans-serif" font-size="68" font-weight="700" letter-spacing="8">OvO</text>
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(610 126) rotate(90) scale(92)">
+      <stop stop-color="#2D3444"/>
+      <stop offset="1" stop-color="#0F131C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
